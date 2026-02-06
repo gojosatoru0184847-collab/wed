@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>FF Top-up Request (Parody)</title>
+<style>
+:root{
+  --bg1:#060a1a; --bg2:#1c2a58;
+  --card: rgba(255,255,255,.10);
+  --stroke: rgba(255,255,255,.18);
+  --text: rgba(255,255,255,.92);
+  --sub: rgba(255,255,255,.70);
+  --blue:#0a84ff;
+  --gray:#3a3a3c;
+  --gold:#ffd966;
+  --red:#ff5c5c;
+  --shadow: 0 18px 60px rgba(0,0,0,.65);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  min-height:100vh;
+  padding: calc(14px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom));
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Arial;
+  color:var(--text);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+
+/* ===== Animated background (Aurora) ===== */
+.bg{
+  position:fixed; inset:0;
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(10,132,255,.25), transparent 60%),
+              radial-gradient(900px 500px at 90% 30%, rgba(255,204,77,.18), transparent 55%),
+              linear-gradient(135deg, var(--bg1), var(--bg2));
+  animation: bgShift 9s ease-in-out infinite alternate;
+  filter: saturate(120%);
+}
+@keyframes bgShift{
+  0%{ transform: scale(1) translate(0,0); filter: hue-rotate(0deg) saturate(120%); }
+  100%{ transform: scale(1.05) translate(-1.5%, -1%); filter: hue-rotate(14deg) saturate(140%); }
+}
+.aurora{
+  position:fixed; inset:-30%;
+  background: radial-gradient(circle at 20% 20%, rgba(100,210,255,.18), transparent 55%),
+              radial-gradient(circle at 70% 30%, rgba(191,90,242,.16), transparent 55%),
+              radial-gradient(circle at 60% 80%, rgba(52,199,89,.12), transparent 55%),
+              radial-gradient(circle at 25% 75%, rgba(255,159,10,.12), transparent 55%);
+  animation: aurora 10s ease-in-out infinite alternate;
+  mix-blend-mode: screen;
+  pointer-events:none;
+}
+@keyframes aurora{
+  0%{ transform: rotate(0deg) translate(0,0) scale(1); opacity:.85; }
+  100%{ transform: rotate(8deg) translate(2%, -2%) scale(1.08); opacity:1; }
+}
+
+/* ===== Floating particles ===== */
+.particles{ position:fixed; inset:0; pointer-events:none; }
+.p{
+  position:absolute;
+  width:6px;height:6px;border-radius:50%;
+  background: rgba(255,255,255,.5);
+  filter: blur(.2px);
+  opacity:0;
+  animation: floatUp linear forwards;
+}
+@keyframes floatUp{
+  0%{ transform: translateY(20vh) translateX(0) scale(.6); opacity:0; }
+  15%{ opacity:.55; }
+  80%{ opacity:.35; }
+  100%{ transform: translateY(-120vh) translateX(40px) scale(1.1); opacity:0; }
+}
+
+/* ===== Card ===== */
+.card{
+  width:min(520px,100%);
+  border-radius:22px;
+  background:var(--card);
+  border:1px solid var(--stroke);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  position:relative;
+  transform: translateZ(0);
+}
+@supports ((-webkit-backdrop-filter: blur(12px)) or (backdrop-filter: blur(12px))){
+  .card{
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+  }
+}
+.card:before{
+  content:"";
+  position:absolute; inset:-2px;
+  background: radial-gradient(500px 220px at 30% 20%, rgba(10,132,255,.25), transparent 60%),
+              radial-gradient(500px 240px at 70% 70%, rgba(255,217,102,.22), transparent 60%);
+  opacity:.7;
+  filter: blur(18px);
+  animation: glow 2.6s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes glow{
+  0%{ transform: scale(1); opacity:.55; }
+  100%{ transform: scale(1.05); opacity:.85; }
+}
+.layer{ position:relative; }
+
+/* Flash overlay */
+.flash{
+  position:absolute; inset:0;
+  background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.25), transparent 60%);
+  opacity:0;
+  pointer-events:none;
+}
+.flash.on{ animation: flash .35s ease-out 1; }
+@keyframes flash{
+  0%{opacity:0}
+  25%{opacity:1}
+  100%{opacity:0}
+}
+
+/* Header */
+.header{
+  padding:12px 12px 10px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.leftHead{display:flex; align-items:center; gap:10px; min-width:0;}
+.avatar{
+  width:34px;height:34px;border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), rgba(255,255,255,.08)),
+              linear-gradient(180deg, rgba(10,132,255,.45), rgba(255,217,102,.25));
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow: 0 10px 22px rgba(0,0,0,.35);
+  flex:0 0 auto;
+}
+.titleWrap{min-width:0}
+.titleWrap b{display:block; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.titleWrap .sub{font-size:12px;opacity:.72; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.badge{
+  font-size:11px;
+  font-weight:900;
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(0,0,0,.28);
+  border:1px solid rgba(255,255,255,.16);
+  letter-spacing:.4px;
+}
+.badge span{opacity:.9}
+.watermark{
+  position:absolute;
+  top:10px; right:12px;
+  font-size:10px;
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(0,0,0,.38);
+  border:1px solid rgba(255,255,255,.14);
+  color: rgba(255,255,255,.78);
+  z-index:3;
+}
+
+/* Chat */
+.chat{
+  padding:14px;
+  max-height:60vh;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.timeLine{
+  text-align:center;
+  font-size:11px;
+  color: rgba(255,255,255,.55);
+  margin:6px 0 10px;
+}
+.row{display:flex;margin:10px 0}
+.me{justify-content:flex-start}
+.sis{justify-content:flex-end}
+
+/* Bubbles */
+.bubble{
+  max-width:82%;
+  padding:10px 12px;
+  border-radius:18px;
+  font-size:14px;
+  line-height:1.45;
+  position:relative;
+  border:1px solid rgba(255,255,255,.10);
+  animation: pop .22s ease-out both;
+  transform: translateZ(0);
+}
+@keyframes pop{
+  from{opacity:0; transform: translateY(10px) scale(.97);}
+  to{opacity:1; transform: translateY(0) scale(1);}
+}
+.me .bubble{background:var(--gray)}
+.sis .bubble{background:var(--blue)}
+.me .bubble:after, .sis .bubble:after{
+  content:""; position:absolute; bottom:0; width:16px; height:16px;
+}
+.me .bubble:after{
+  left:-6px;
+  background: radial-gradient(circle at 0 100%, transparent 10px, var(--gray) 10px);
+}
+.sis .bubble:after{
+  right:-6px;
+  background: radial-gradient(circle at 100% 100%, transparent 10px, var(--blue) 10px);
+}
+
+.status{
+  font-size:11px;
+  color: rgba(255,255,255,.55);
+  margin-top:4px;
+  text-align:right;
+}
+
+/* Typing */
+.typingWrap{display:none}
+.typing{
+  width:62px; display:flex; gap:6px; align-items:center; justify-content:center;
+  padding:10px 12px; border-radius:18px;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.18);
+}
+.typing i{
+  width:6px;height:6px;border-radius:50%;
+  background: rgba(255,255,255,.85);
+  display:block;
+  animation: blink 1.1s infinite;
+  opacity:.55;
+}
+.typing i:nth-child(2){animation-delay:.15s}
+.typing i:nth-child(3){animation-delay:.30s}
+@keyframes blink{
+  0%,80%,100%{transform:translateY(0);opacity:.45}
+  40%{transform:translateY(-3px);opacity:1}
+}
+
+/* Buttons */
+.actions{
+  display:flex;
+  gap:10px;
+  padding:12px;
+  border-top:1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.06);
+}
+.btn{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:14px;
+  font-weight:900;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  position:relative;
+  overflow:hidden;
+  transform: translateZ(0);
+}
+.btn:active{transform:scale(.98)}
+.yes{background:linear-gradient(180deg, #ffe28a, var(--gold)); color:#000}
+.no{background:linear-gradient(180deg, #ff7a7a, var(--red)); color:#fff}
+.nap{background:linear-gradient(180deg, #3aa0ff, var(--blue)); color:#fff}
+
+/* Fake input bar */
+.inputBar{
+  display:flex; gap:10px;
+  align-items:center;
+  padding:10px 12px 12px;
+  border-top:1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.08);
+}
+.fakeInput{
+  flex:1;
+  padding:12px 14px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.22);
+  color: rgba(255,255,255,.70);
+  font-size:13px;
+}
+.sendDot{
+  width:40px;height:40px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.10);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;
+}
+
+/* Ripple */
+.ripple{
+  position:absolute;
+  border-radius:50%;
+  transform: scale(0);
+  animation: ripple .55s ease-out;
+  background: rgba(255,255,255,.35);
+  pointer-events:none;
+}
+@keyframes ripple{
+  to{ transform: scale(18); opacity:0; }
+}
+
+/* Shake */
+@keyframes shake{
+  0%{transform:translateX(0)}
+  20%{transform:translateX(-10px)}
+  40%{transform:translateX(10px)}
+  60%{transform:translateX(-6px)}
+  80%{transform:translateX(6px)}
+  100%{transform:translateX(0)}
+}
+.shake{ animation: shake .42s cubic-bezier(.2,.8,.2,1) 1; }
+
+/* FX layers */
+.fx{ pointer-events:none; position:absolute; inset:0; overflow:hidden; }
+.confettiPiece{
+  position:absolute; top:-12px;
+  width:10px; height:14px; border-radius:3px;
+  opacity:.95;
+  animation: fall 1.25s linear forwards;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.25));
+}
+@keyframes fall{
+  to{ transform: translateY(120vh) rotate(520deg); opacity:0; }
+}
+.fireDot{
+  position:absolute;
+  width:6px;height:6px;border-radius:50%;
+  opacity:.9;
+  animation: fire 900ms ease-out forwards;
+  filter: drop-shadow(0 8px 14px rgba(0,0,0,.35));
+}
+@keyframes fire{
+  0%{ transform: translate(0,0) scale(1); opacity:1; }
+  100%{ transform: translate(var(--dx), var(--dy)) scale(.2); opacity:0; }
+}
+
+/* Sparkles */
+.spark{
+  position:fixed;
+  width:10px;height:10px;border-radius:50%;
+  background: rgba(255,255,255,.95);
+  box-shadow: 0 0 12px rgba(255,255,255,.65);
+  pointer-events:none;
+  animation: spark 520ms ease-out forwards;
+}
+@keyframes spark{
+  0%{ transform: translate(-50%,-50%) scale(1); opacity:1; }
+  100%{ transform: translate(-50%,-50%) scale(.1); opacity:0; }
+}
+
+/* Toast */
+.toast{
+  position:absolute; left:50%; bottom:14px;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,.12);
+  color:#fff;
+  padding:10px 12px;
+  border-radius:14px;
+  font-size:13px;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .18s ease, transform .18s ease;
+  z-index:6;
+}
+.toast.on{ opacity:1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+
+<body>
+<div class="bg"></div>
+<div class="aurora"></div>
+<div class="particles" id="particles"></div>
+
+<div class="card" id="card">
+  <div class="layer">
+    <div class="watermark">PARODY / DEMO</div>
+    <div class="fx" id="fx"></div>
+    <div class="flash" id="flash"></div>
+    <div class="toast" id="toast">✅ Copied</div>
+
+    <script>
+      window.APP_CFG = {
+        CONTACT: "Đại Gia",
+        GAME: "Free Fire",
+        PKG: "Booyah",
+        PRICE: "60.000đ",
+        ID: "5571731607"
+      };
+    </script>
+
+    <div class="header">
+      <div class="leftHead">
+        <div class="avatar" aria-hidden="true"></div>
+        <div class="titleWrap">
+          <b id="contactName">Đại Gia</b>
+          <div class="sub" id="headerSub">Chat style • Free Fire</div>
+        </div>
+      </div>
+      <div class="badge"><span id="badgeText">Booyah</span> • <span id="badgePrice">60.000đ</span></div>
+    </div>
+
+    <div class="chat" id="chat">
+      <div class="timeLine" id="timeLine">Hôm nay • 19:00</div>
+
+      <div class="row me"><div class="bubble">Đại gia ơiiii 😭🔥</div></div>
+      <div class="row me"><div class="bubble">Em thèm đồ trong game mà ví em đang rank <b>Nghèo III</b> 🥲</div></div>
+      <div class="row sis"><div class="bubble">Nói nhanh: muốn xin top-up đúng không 😑</div></div>
+
+      <div class="row sis typingWrap" id="typingWrap">
+        <div class="typing"><i></i><i></i><i></i></div>
+      </div>
+
+      <div class="status" id="lastStatus"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn yes" id="yesBtn">Đồng ý 💸</button>
+      <button class="btn no" id="noBtn">Từ chối ❌</button>
+      <button class="btn nap" id="napBtn">Nạp thẻ 🧾</button>
+    </div>
+
+    <div class="inputBar">
+      <div class="fakeInput">Parody chat UI (không phải app nhắn tin thật)…</div>
+      <div class="sendDot">➤</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function escHtml(s){
+  return String(s)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+function haptic(ms){ if(navigator.vibrate) navigator.vibrate(ms || 25); }
+function nowTime(){
+  var d = new Date();
+  var hh = String(d.getHours()).padStart(2,"0");
+  var mm = String(d.getMinutes()).padStart(2,"0");
+  return hh + ":" + mm;
+}
+(function(){
+  var c = window.APP_CFG || {};
+  document.getElementById("contactName").textContent = c.CONTACT || "Đại Gia";
+  document.getElementById("headerSub").textContent = "Chat style • " + (c.GAME || "Free Fire");
+  document.getElementById("badgeText").textContent = c.PKG || "Booyah";
+  document.getElementById("badgePrice").textContent = c.PRICE || "60.000đ";
+})();
+
+/* beep */
+var audioCtx = null;
+function beep(){
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    var o = audioCtx.createOscillator();
+    var g = audioCtx.createGain();
+    o.type = "sine"; o.frequency.value = 880;
+    g.gain.value = 0.0001;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start();
+    g.gain.exponentialRampToValueAtTime(0.25, audioCtx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.18);
+    o.stop(audioCtx.currentTime + 0.2);
+  }catch(e){}
+}
+function toast(text){
+  var t = document.getElementById("toast");
+  t.textContent = text;
+  t.classList.add("on");
+  setTimeout(function(){ t.classList.remove("on"); }, 1400);
+}
+function ripple(e, btn){
+  var r = document.createElement("span");
+  r.className = "ripple";
+  var rect = btn.getBoundingClientRect();
+  var x = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+  var y = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+  r.style.left = (x - rect.left) + "px";
+  r.style.top  = (y - rect.top) + "px";
+  btn.appendChild(r);
+  setTimeout(function(){ if(r && r.parentNode) r.parentNode.removeChild(r); }, 650);
+}
+
+/* spark trail */
+function sparkAt(x,y){
+  for(var i=0;i<6;i++){
+    var s = document.createElement("div");
+    s.className = "spark";
+    s.style.left = (x + (Math.random()*16-8)) + "px";
+    s.style.top  = (y + (Math.random()*16-8)) + "px";
+    s.style.background = "rgba(255,255,255," + (0.75+Math.random()*0.25) + ")";
+    document.body.appendChild(s);
+    (function(node){
+      setTimeout(function(){ if(node && node.parentNode) node.parentNode.removeChild(node); }, 650);
+    })(s);
+  }
+}
+document.addEventListener("click", function(e){ sparkAt(e.clientX, e.clientY); }, {passive:true});
+document.addEventListener("touchstart", function(e){
+  if(e.touches && e.touches[0]) sparkAt(e.touches[0].clientX, e.touches[0].clientY);
+}, {passive:true});
+
+/* particles */
+(function makeParticles(){
+  var holder = document.getElementById("particles");
+  var n = 18;
+  for(var i=0;i<n;i++) spawnP();
+  function spawnP(){
+    var d = document.createElement("div");
+    d.className = "p";
+    d.style.left = (Math.random()*100) + "%";
+    d.style.top  = (80 + Math.random()*40) + "vh";
+    d.style.width = (4 + Math.random()*6) + "px";
+    d.style.height = d.style.width;
+    d.style.opacity = 0;
+    var dur = 6 + Math.random()*6;
+    d.style.animationDuration = dur + "s";
+    d.style.animationDelay = (Math.random()*3) + "s";
+    holder.appendChild(d);
+    setTimeout(function(){
+      if(d && d.parentNode) d.parentNode.removeChild(d);
+      spawnP();
+    }, (dur+3)*1000);
+  }
+})();
+
+/* fx */
+function confettiBurst(count){
+  var fx = document.getElementById("fx");
+  var colors = ["#0a84ff","#ffd966","#ff5c5c","#34c759","#bf5af2","#ff9f0a","#64d2ff","#ffffff"];
+  var n = count || 60;
+  for(var i=0;i<n;i++){
+    var d = document.createElement("div");
+    d.className = "confettiPiece";
+    d.style.left = (Math.random()*100) + "%";
+    d.style.background = colors[Math.floor(Math.random()*colors.length)];
+    d.style.width = (6 + Math.random()*10) + "px";
+    d.style.height= (8 + Math.random()*14) + "px";
+    d.style.opacity = (0.65 + Math.random()*0.35);
+    d.style.animationDuration = (0.9 + Math.random()*0.9) + "s";
+    d.style.transform = "translateY(-10px) rotate(" + (Math.random()*180) + "deg)";
+    fx.appendChild(d);
+    (function(node){
+      setTimeout(function(){ if(node && node.parentNode) node.parentNode.removeChild(node); }, 1600);
+    })(d);
+  }
+}
+function fireworks(x,y){
+  var fx = document.getElementById("fx");
+  var colors = ["#0a84ff","#ffd966","#ff5c5c","#34c759","#bf5af2","#ffffff"];
+  var k = 26;
+  for(var i=0;i<k;i++){
+    var p = document.createElement("div");
+    p.className = "fireDot";
+    p.style.left = x + "px";
+    p.style.top  = y + "px";
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    var ang = (Math.PI*2) * (i/k);
+    var spd = 60 + Math.random()*120;
+    var dx = Math.cos(ang) * spd;
+    var dy = Math.sin(ang) * spd;
+    p.style.setProperty("--dx", dx + "px");
+    p.style.setProperty("--dy", dy + "px");
+    fx.appendChild(p);
+    (function(node){
+      setTimeout(function(){ if(node && node.parentNode) node.parentNode.removeChild(node); }, 950);
+    })(p);
+  }
+}
+function flash(){
+  var f = document.getElementById("flash");
+  f.classList.remove("on");
+  void f.offsetWidth;
+  f.classList.add("on");
+}
+function showTyping(ms, cb){
+  var wrap = document.getElementById("typingWrap");
+  wrap.style.display = "flex";
+  setTimeout(function(){
+    wrap.style.display = "none";
+    if(cb) cb();
+  }, ms || 650);
+}
+function addMsg(side, html, statusText){
+  var chat = document.getElementById("chat");
+  var row = document.createElement("div");
+  row.className = "row " + side;
+  var b = document.createElement("div");
+  b.className = "bubble";
+  b.innerHTML = html;
+  row.appendChild(b);
+  chat.insertBefore(row, document.getElementById("typingWrap"));
+  chat.scrollTop = chat.scrollHeight;
+  if(side === "sis"){
+    var s = document.getElementById("lastStatus");
+    if(statusText) s.textContent = statusText;
+  }
+}
+
+/* ctx + banks */
+function ctx(){
+  var c = window.APP_CFG || {};
+  return {
+    GAME: escHtml(c.GAME || "Free Fire"),
+    PKG: escHtml(c.PKG || "Booyah"),
+    PRICE: escHtml(c.PRICE || "60.000đ"),
+    ID: escHtml(c.ID || "5571731607")
+  };
+}
+function fmt(s){
+  var c = ctx();
+  return s.replace(/\{\{GAME\}\}/g,c.GAME)
+          .replace(/\{\{PKG\}\}/g,c.PKG)
+          .replace(/\{\{PRICE\}\}/g,c.PRICE)
+          .replace(/\{\{ID\}\}/g,c.ID);
+}
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+var BANK_YES = [
+  [
+    {side:"sis", t:"Ok. Nhưng chỉ <b>{{PRICE}}</b> thôi 😑"},
+    {side:"me",  t:"Dạaa em hứa ngoan liền 😭🙏"},
+    {side:"sis", t:"Gửi lại ID cho chắc."},
+    {side:"me",  t:"🆔 <b>{{ID}}</b> ạ 💖"},
+    {side:"sis", t:"Ừ. Tao xử lý."},
+    {side:"me",  t:"ĐẠI GIA LÀ ÁNH SÁNG CUỘC ĐỜI EM 🥹🔥"}
+  ],
+  [
+    {side:"me",  t:"Đại gia ơi… nạp <b>{{PKG}}</b> cho em là em ngoan liền 🥲💖"},
+    {side:"sis", t:"Bớt xàm 😑"},
+    {side:"me",  t:"Em nói thật… <b>{{PRICE}}</b> thôi mà 😭"},
+    {side:"sis", t:"Ok. ID đâu."},
+    {side:"me",  t:"🆔 <b>{{ID}}</b> ạ"},
+    {side:"me",  t:"Em cảm ơn đại giaaaa 😭🔥"}
+  ],
+  [
+    {side:"sis", t:"Nạp xong thì làm gì?"},
+    {side:"me",  t:"Em hứa gánh team ạ 😭🔥"},
+    {side:"sis", t:"Gánh không nổi tao cắt viện trợ 😑"},
+    {side:"me",  t:"Em xin nhận kèo! 😭"},
+    {side:"sis", t:"Ok. 🆔?"},
+    {side:"me",  t:"🆔 <b>{{ID}}</b> • <b>{{PKG}}</b> • <b>{{PRICE}}</b> ạ"}
+  ]
+];
+
+var BANK_NO = [
+  [
+    {side:"sis", t:"Không. Tự cày 😑"},
+    {side:"me",  t:"😭🙏 Xin đúng <b>{{PRICE}}</b> thôi…"},
+    {side:"sis", t:"Không."},
+    {side:"me",  t:"Dạ… em đi làm nhiệm vụ… 🥲"},
+    {side:"sis", t:"Ngoan."}
+  ],
+  [
+    {side:"sis", t:"Từ chối. Tiền để ăn 😑"},
+    {side:"me",  t:"Em ăn mì gói cũng được… 😭"},
+    {side:"sis", t:"Không thương lượng."},
+    {side:"me",  t:"Ok… em đi ngủ sớm… (tí nữa) 😭"},
+    {side:"sis", t:"👍"}
+  ]
+];
+
+function runSequence(bank, isYes){
+  var seq = pick(bank).slice();
+  var len = 4 + Math.floor(Math.random()*3);
+  if(seq.length > len) seq = seq.slice(0, len);
+
+  haptic(isYes ? 35 : 25); beep(); flash();
+  confettiBurst(isYes ? 80 : 18);
+
+  if(isYes){
+    var rect = document.getElementById("card").getBoundingClientRect();
+    fireworks(rect.left + rect.width*0.35, rect.top + rect.height*0.35);
+    fireworks(rect.left + rect.width*0.65, rect.top + rect.height*0.40);
+  }else{
+    var card = document.getElementById("card");
+    card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake");
+  }
+
+  var i = 0;
+  function step(){
+    if(i >= seq.length) return;
+    var item = seq[i++];
+    var msg = fmt(item.t);
+
+    if(item.side === "sis"){
+      showTyping(520 + Math.random()*320, function(){
+        addMsg("sis", msg, (Math.random() > 0.5 ? "Delivered" : "Read • " + nowTime()));
+        setTimeout(step, 180 + Math.random()*220);
+      });
+    }else{
+      addMsg("me", msg);
+      setTimeout(step, 220 + Math.random()*260);
+    }
+  }
+  step();
+}
+
+function goNap(){
+  haptic(18); beep(); flash(); confettiBurst(24);
+  window.open("https://napthe.vn/", "_blank", "noopener,noreferrer");
+  toast("🧾 Đã mở trang nạp (tab mới)");
+}
+
+/* bind buttons */
+function bindBtn(id, handler){
+  var btn = document.getElementById(id);
+  btn.addEventListener("click", function(e){ ripple(e, btn); handler(); }, false);
+  btn.addEventListener("touchstart", function(e){ ripple(e, btn); }, {passive:true});
+}
+bindBtn("yesBtn", function(){ runSequence(BANK_YES, true); });
+bindBtn("noBtn",  function(){ runSequence(BANK_NO, false); });
+bindBtn("napBtn", goNap);
+
+/* init */
+window.addEventListener("load", function(){
+  document.getElementById("timeLine").textContent = "Hôm nay • " + nowTime();
+  var chat = document.getElementById("chat");
+  chat.scrollTop = chat.scrollHeight;
+
+  setTimeout(function(){
+    showTyping(520, function(){
+      addMsg("me", fmt("Em xin nói thẳng luôn nè 😭<br>💳 <b>{{PKG}} • {{PRICE}}</b><br>🆔 <b>{{ID}}</b>"));
+    });
+  }, 320);
+});
+</script>
+</body>
+</html>
