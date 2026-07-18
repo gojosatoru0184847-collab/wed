@@ -5,18 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kích Hoạt Key FF · DEV TRANDUC</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
 
         @keyframes ledBlink {
             0%, 100% { opacity: 1; box-shadow: 0 0 10px #4a9eff; }
             50% { opacity: 0.3; }
-        }
-
-        @keyframes scanline {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
         }
 
         body{
@@ -75,10 +69,6 @@
             color:#4a9eff;
             letter-spacing:2px;
             margin-bottom:8px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            gap:12px;
         }
 
         .led-indicator {
@@ -88,10 +78,7 @@
             border-radius:50%;
             background:#4a9eff;
             animation: ledBlink 1.5s ease-in-out infinite;
-        }
-
-        .led-indicator.green {
-            background:#4aff88;
+            margin-right:8px;
         }
 
         .header p{
@@ -124,7 +111,6 @@
             font-size:14px;
             font-family:'Orbitron','Courier New',monospace;
             outline:none;
-            transition:0.3s;
             letter-spacing:1px;
         }
 
@@ -133,37 +119,25 @@
             box-shadow:0 0 20px #1a4a8a66;
         }
 
-        .form-group input::placeholder{
-            color:#4a8acc66;
-        }
-
         .btn{
             width:100%;
             padding:14px;
-            border:none;
+            border:1px solid #1a4a8a;
             border-radius:8px;
             font-size:14px;
             font-weight:700;
             cursor:pointer;
-            transition:0.3s;
+            background:transparent;
+            color:#4a9eff;
             text-transform:uppercase;
             letter-spacing:2px;
             font-family:'Orbitron','Courier New',monospace;
-            border:1px solid;
-            margin-bottom:12px;
+            transition:0.3s;
         }
 
-        .btn-primary{
-            background:transparent;
-            color:#4a9eff;
-            border-color:#1a4a8a;
-            box-shadow:0 0 15px #1a3a6a44;
-        }
-
-        .btn-primary:hover{
+        .btn:hover{
             background:#1a3a6a;
             box-shadow:0 0 30px #1a4a8a88;
-            transform:scale(1.02);
         }
 
         .message{
@@ -171,7 +145,6 @@
             border-radius:8px;
             margin-bottom:20px;
             font-size:12px;
-            letter-spacing:0.5px;
             display:none;
         }
 
@@ -206,7 +179,7 @@
 
         .result-item{
             text-align:left;
-            margin-bottom:8px;
+            margin-bottom:10px;
             font-size:12px;
         }
 
@@ -214,35 +187,22 @@
             color:#4a8acc;
             display:block;
             margin-bottom:4px;
-            letter-spacing:1px;
         }
 
         .result-item value{
             color:#4a9eff;
             font-weight:700;
-            letter-spacing:0.5px;
         }
 
         .footer{
             margin-top:20px;
             font-size:10px;
             color:#4a8acc88;
-            letter-spacing:1px;
         }
 
         a{
             color:#4a9eff;
             text-decoration:none;
-            transition:0.3s;
-        }
-
-        a:hover{
-            text-shadow:0 0 10px #1a4a8a66;
-        }
-
-        @media(max-width:600px){
-            .card{padding:24px;}
-            .header h1{font-size:18px;}
         }
     </style>
 </head>
@@ -265,74 +225,42 @@
             <input type="text" id="keyInput" placeholder="FF-XXXXXXXXXXXXXXXX" onkeypress="if(event.key==='Enter') activateKey()">
         </div>
 
-        <button class="btn btn-primary" onclick="activateKey()">🚀 KÍCH HOẠT</button>
+        <button class="btn" onclick="activateKey()">🚀 KÍCH HOẠT</button>
 
         <div id="result" class="result">
             <div class="result-item">
-                <label>Trạng thái:</label>
-                <value id="resultStatus"></value>
+                <label>✅ Trạng thái:</label>
+                <value id="resultStatus">Kích hoạt thành công</value>
             </div>
             <div class="result-item">
-                <label>Tên:</label>
+                <label>Tên Key:</label>
                 <value id="resultName"></value>
             </div>
             <div class="result-item">
                 <label>Số máy tối đa:</label>
                 <value id="resultDevices"></value>
             </div>
-            <div class="result-item">
-                <label>Ngày hết hạn:</label>
-                <value id="resultExpiry"></value>
-            </div>
         </div>
 
         <div class="footer">
             <p>💡 Nhập key để kích hoạt tài khoản của bạn</p>
-            <p style="margin-top:8px;">👉 <a href="admin-login.html">Quản lý key (Admin)</a></p>
+            <p style="margin-top:8px;"><a href="admin-login.html">👉 Quản lý key (Admin)</a></p>
         </div>
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script>
-// Hàm giải mã 4 lớp (PHẢI GIỐNG hệt admin-panel.html)
-function decrypt4Layers(encrypted) {
-    const salt1 = "layer1_2024";
-    const salt2 = "layer2_crypto";
-    const salt3 = "layer3_secure";
-    const salt4 = "layer4_final";
-
-    try {
-        // Lớp 4: Custom XOR decryption
-        let data = atob(encrypted);
-        let decrypted = "";
-        for (let i = 0; i < data.length; i++) {
-            decrypted += String.fromCharCode(data.charCodeAt(i) ^ salt4.charCodeAt(i % salt4.length));
-        }
-
-        // Lớp 3: AES decrypt
-        decrypted = CryptoJS.AES.decrypt(decrypted, salt2).toString(CryptoJS.enc.Utf8);
-        decrypted = decrypted.replace(salt2, "");
-
-        // Lớp 1: Base64 decode
-        decrypted = atob(decrypted);
-
-        return decrypted;
-    } catch(e) {
-        console.error("Lỗi giải mã:", e);
-        return null;
-    }
-}
-
 function showMessage(msg, type = 'success') {
     const msgDiv = document.getElementById('message');
     msgDiv.textContent = msg;
     msgDiv.className = `message show ${type}`;
-    setTimeout(() => msgDiv.classList.remove('show'), 5000);
+    console.log('Message:', msg, type);
+    setTimeout(() => msgDiv.classList.remove('show'), 4000);
 }
 
 function activateKey() {
     const keyInput = document.getElementById('keyInput').value.trim().toUpperCase();
+    console.log('Input key:', keyInput);
 
     if (!keyInput) {
         showMessage('❌ Vui lòng nhập key', 'error');
@@ -340,27 +268,19 @@ function activateKey() {
     }
 
     try {
-        const encryptedData = localStorage.getItem('ff_keys_db_encrypted');
+        // Lấy dữ liệu từ localStorage
+        const keysData = JSON.parse(localStorage.getItem('ff_keys_db') || '[]');
+        console.log('Keys in DB:', keysData);
         
-        if (!encryptedData) {
-            showMessage('❌ Không có key nào trong hệ thống', 'error');
+        if (keysData.length === 0) {
+            showMessage('❌ Không có key nào trong hệ thống. Vui lòng tạo key từ Admin Panel!', 'error');
             document.getElementById('result').classList.remove('show');
             return;
         }
 
-        // Giải mã database
-        const decryptedJson = decrypt4Layers(encryptedData);
-        
-        if (!decryptedJson) {
-            showMessage('❌ Lỗi giải mã database', 'error');
-            document.getElementById('result').classList.remove('show');
-            return;
-        }
-
-        const keysData = JSON.parse(decryptedJson);
-        
         // Tìm key
-        const foundKey = keysData.find(k => k.plainKey === keyInput);
+        const foundKey = keysData.find(k => k.key === keyInput);
+        console.log('Found key:', foundKey);
 
         if (!foundKey) {
             showMessage('❌ Key không tồn tại hoặc không hợp lệ', 'error');
@@ -374,39 +294,30 @@ function activateKey() {
             return;
         }
 
-        if (foundKey.expiry !== 'Không') {
-            const expiry = new Date(foundKey.expiry);
-            if (new Date() > expiry) {
-                showMessage('❌ Key đã hết hạn', 'error');
-                document.getElementById('result').classList.remove('show');
-                return;
-            }
-        }
-
-        // Kích hoạt thành công - Cập nhật database
+        // Kích hoạt thành công
         foundKey.status = 'used';
         foundKey.activations = (foundKey.activations || 0) + 1;
-        
-        // Mã hóa lại và lưu
-        const updatedJson = JSON.stringify(keysData);
-        localStorage.setItem('ff_keys_db_encrypted', updatedJson); // Lỗi ở đây!
+        localStorage.setItem('ff_keys_db', JSON.stringify(keysData));
 
         // Hiển thị kết quả
-        document.getElementById('resultStatus').textContent = '✅ Kích hoạt thành công';
         document.getElementById('resultName').textContent = foundKey.name;
-        document.getElementById('resultDevices').textContent = foundKey.maxDev === 9999 ? 'Không giới hạn' : foundKey.maxDev;
-        document.getElementById('resultExpiry').textContent = foundKey.expiry;
+        document.getElementById('resultDevices').textContent = foundKey.maxDev;
         document.getElementById('result').classList.add('show');
 
         showMessage('✅ Kích hoạt key thành công! 🎉', 'success');
         document.getElementById('keyInput').value = '';
 
     } catch(e) {
-        console.error('Lỗi:', e);
+        console.error('Error:', e);
         showMessage('❌ Lỗi hệ thống: ' + e.message, 'error');
-        document.getElementById('result').classList.remove('show');
     }
 }
+
+// Debug: Kiểm tra localStorage khi load trang
+window.addEventListener('load', () => {
+    const keysData = JSON.parse(localStorage.getItem('ff_keys_db') || '[]');
+    console.log('Page loaded. Keys in storage:', keysData);
+});
 </script>
 </body>
 </html>
