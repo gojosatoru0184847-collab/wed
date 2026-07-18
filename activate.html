@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kích Hoạt Key FF · DEV TRANDUC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        @keyframes ledBlink {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px #4a9eff; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        body{
+            background:#070b12;
+            color:#4a9eff;
+            font-family:'Orbitron','Courier New',monospace;
+            padding:20px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+            background-image:radial-gradient(ellipse at 50% 0%, #0a1628 0%, #070b12 70%);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 20, 40, 0.03) 2px,
+                rgba(0, 20, 40, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .container{
+            max-width:500px;
+            width:100%;
+            position:relative;
+            z-index:1;
+        }
+
+        .card{
+            background:#070b12;
+            border:2px solid #1a4a8a;
+            border-radius:12px;
+            padding:32px;
+            box-shadow:0 0 30px #0a1a3a44;
+            text-align:center;
+        }
+
+        .header{
+            margin-bottom:32px;
+        }
+
+        .header h1{
+            font-size:24px;
+            font-weight:900;
+            color:#4a9eff;
+            letter-spacing:2px;
+            margin-bottom:8px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:12px;
+        }
+
+        .led-indicator {
+            display:inline-block;
+            width:12px;
+            height:12px;
+            border-radius:50%;
+            background:#4a9eff;
+            animation: ledBlink 1.5s ease-in-out infinite;
+        }
+
+        .led-indicator.green {
+            background:#4aff88;
+        }
+
+        .header p{
+            font-size:12px;
+            color:#4a8acc;
+            letter-spacing:1px;
+        }
+
+        .form-group{
+            margin-bottom:20px;
+            text-align:left;
+        }
+
+        .form-group label{
+            display:block;
+            font-size:12px;
+            color:#4a8acc;
+            margin-bottom:8px;
+            letter-spacing:1px;
+            text-transform:uppercase;
+        }
+
+        .form-group input{
+            width:100%;
+            padding:12px 16px;
+            background:#070b12;
+            border:1px solid #1a4a8a;
+            color:#4a9eff;
+            border-radius:8px;
+            font-size:14px;
+            font-family:'Orbitron','Courier New',monospace;
+            outline:none;
+            transition:0.3s;
+            letter-spacing:1px;
+        }
+
+        .form-group input:focus{
+            border-color:#4a9eff;
+            box-shadow:0 0 20px #1a4a8a66;
+        }
+
+        .form-group input::placeholder{
+            color:#4a8acc66;
+        }
+
+        .btn{
+            width:100%;
+            padding:14px;
+            border:none;
+            border-radius:8px;
+            font-size:14px;
+            font-weight:700;
+            cursor:pointer;
+            transition:0.3s;
+            text-transform:uppercase;
+            letter-spacing:2px;
+            font-family:'Orbitron','Courier New',monospace;
+            border:1px solid;
+            margin-bottom:12px;
+        }
+
+        .btn-primary{
+            background:transparent;
+            color:#4a9eff;
+            border-color:#1a4a8a;
+            box-shadow:0 0 15px #1a3a6a44;
+        }
+
+        .btn-primary:hover{
+            background:#1a3a6a;
+            box-shadow:0 0 30px #1a4a8a88;
+            transform:scale(1.02);
+        }
+
+        .message{
+            padding:16px;
+            border-radius:8px;
+            margin-bottom:20px;
+            font-size:12px;
+            letter-spacing:0.5px;
+            display:none;
+        }
+
+        .message.show{
+            display:block;
+        }
+
+        .message.success{
+            background:#0a2a1a;
+            color:#4aff88;
+            border:1px solid #1a6a3a;
+        }
+
+        .message.error{
+            background:#2a0a0a;
+            color:#ff4466;
+            border:1px solid #6a1a2a;
+        }
+
+        .result{
+            display:none;
+            margin-top:20px;
+            padding:16px;
+            background:#0a1a2a;
+            border:1px solid #1a4a8a;
+            border-radius:8px;
+        }
+
+        .result.show{
+            display:block;
+        }
+
+        .result-item{
+            text-align:left;
+            margin-bottom:8px;
+            font-size:12px;
+        }
+
+        .result-item label{
+            color:#4a8acc;
+            display:block;
+            margin-bottom:4px;
+            letter-spacing:1px;
+        }
+
+        .result-item value{
+            color:#4a9eff;
+            font-weight:700;
+            letter-spacing:0.5px;
+        }
+
+        .footer{
+            margin-top:20px;
+            font-size:10px;
+            color:#4a8acc88;
+            letter-spacing:1px;
+        }
+
+        a{
+            color:#4a9eff;
+            text-decoration:none;
+            transition:0.3s;
+        }
+
+        a:hover{
+            text-shadow:0 0 10px #1a4a8a66;
+        }
+
+        @media(max-width:600px){
+            .card{padding:24px;}
+            .header h1{font-size:18px;}
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="card">
+        <div class="header">
+            <h1>
+                <span class="led-indicator"></span>
+                KÍCH HOẠT KEY
+            </h1>
+            <p>🎮 Free Fire · DEV TRANDUC</p>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <div class="form-group">
+            <label>Nhập Key:</label>
+            <input type="text" id="keyInput" placeholder="FF-XXXXXXXXXXXXXXXX" onkeypress="if(event.key==='Enter') activateKey()">
+        </div>
+
+        <button class="btn btn-primary" onclick="activateKey()">🚀 KÍCH HOẠT</button>
+
+        <div id="result" class="result">
+            <div class="result-item">
+                <label>Trạng thái:</label>
+                <value id="resultStatus"></value>
+            </div>
+            <div class="result-item">
+                <label>Tên:</label>
+                <value id="resultName"></value>
+            </div>
+            <div class="result-item">
+                <label>Số máy tối đa:</label>
+                <value id="resultDevices"></value>
+            </div>
+            <div class="result-item">
+                <label>Ngày hết hạn:</label>
+                <value id="resultExpiry"></value>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>💡 Nhập key để kích hoạt tài khoản của bạn</p>
+            <p style="margin-top:8px;">👉 <a href="admin.html">Quản lý key (Admin)</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+function showMessage(msg, type = 'success') {
+    const msgDiv = document.getElementById('message');
+    msgDiv.textContent = msg;
+    msgDiv.className = `message show ${type}`;
+    setTimeout(() => msgDiv.classList.remove('show'), 5000);
+}
+
+function activateKey() {
+    const keyInput = document.getElementById('keyInput').value.trim().toUpperCase();
+
+    if (!keyInput) {
+        showMessage('❌ Vui lòng nhập key', 'error');
+        return;
+    }
+
+    try {
+        const keysData = JSON.parse(localStorage.getItem('ff_keys_db') || '[]');
+        const foundKey = keysData.find(k => k.key === keyInput);
+
+        if (!foundKey) {
+            showMessage('❌ Key không tồn tại hoặc không hợp lệ', 'error');
+            document.getElementById('result').classList.remove('show');
+            return;
+        }
+
+        if (foundKey.status === 'used') {
+            showMessage('❌ Key đã được sử dụng', 'error');
+            document.getElementById('result').classList.remove('show');
+            return;
+        }
+
+        if (foundKey.expiry !== 'Không') {
+            const expiry = new Date(foundKey.expiry);
+            if (new Date() > expiry) {
+                showMessage('❌ Key đã hết hạn', 'error');
+                document.getElementById('result').classList.remove('show');
+                return;
+            }
+        }
+
+        // Kích hoạt thành công
+        foundKey.status = 'used';
+        foundKey.activations = (foundKey.activations || 0) + 1;
+        localStorage.setItem('ff_keys_db', JSON.stringify(keysData));
+
+        // Lưu log kích hoạt
+        const activationLog = {
+            key: foundKey.key,
+            time: new Date().toLocaleString('vi-VN'),
+            userAgent: navigator.userAgent,
+            timestamp: Date.now()
+        };
+
+        let logs = JSON.parse(localStorage.getItem('ff_activation_logs') || '[]');
+        logs.push(activationLog);
+        localStorage.setItem('ff_activation_logs', JSON.stringify(logs));
+
+        // Hiển thị kết quả
+        document.getElementById('resultStatus').textContent = '✅ Kích hoạt thành công';
+        document.getElementById('resultName').textContent = foundKey.name;
+        document.getElementById('resultDevices').textContent = foundKey.maxDev === 9999 ? 'Không giới hạn' : foundKey.maxDev;
+        document.getElementById('resultExpiry').textContent = foundKey.expiry;
+        document.getElementById('result').classList.add('show');
+
+        showMessage('✅ Kích hoạt key thành công!', 'success');
+        document.getElementById('keyInput').value = '';
+
+    } catch(e) {
+        showMessage('❌ Lỗi hệ thống: ' + e.message, 'error');
+    }
+}
+</script>
+</body>
+</html>
