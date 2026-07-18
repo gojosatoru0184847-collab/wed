@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key Manager Admin · DEV TRANDUC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        @keyframes ledBlink {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px #4a9eff; }
+            50% { opacity: 0.3; }
+        }
+
+        body{
+            background:#070b12;
+            color:#4a9eff;
+            font-family:'Orbitron','Courier New',monospace;
+            padding:20px;
+            display:flex;
+            justify-content:center;
+            min-height:100vh;
+            background-image:radial-gradient(ellipse at 50% 0%, #0a1628 0%, #070b12 70%);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 20, 40, 0.03) 2px,
+                rgba(0, 20, 40, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .container{max-width:1200px;width:100%;position:relative;z-index:1;}
+
+        .header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:16px 0;
+            border-bottom:1px solid #1a3a6a;
+            margin-bottom:24px;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+
+        .header h1{
+            font-size:22px;
+            font-weight:900;
+            color:#4a9eff;
+            letter-spacing:2px;
+            display:flex;
+            align-items:center;
+            gap:12px;
+        }
+
+        .led-indicator {
+            display:inline-block;
+            width:12px;
+            height:12px;
+            border-radius:50%;
+            background:#4aff88;
+            animation: ledBlink 1.2s ease-in-out infinite;
+        }
+
+        .badge{
+            font-size:10px;
+            color:#4a8acc;
+            background:#070b12;
+            padding:4px 14px;
+            border-radius:50px;
+            border:1px solid #1a3a6a;
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+
+        .logout{
+            padding:6px 14px;
+            border:1px solid #6a1a2a;
+            color:#ff4466;
+            border-radius:6px;
+            font-size:10px;
+            cursor:pointer;
+            background:transparent;
+            transition:0.3s;
+            font-family:'Orbitron','Courier New',monospace;
+            text-transform:uppercase;
+            letter-spacing:1px;
+        }
+
+        .logout:hover{
+            background:#5a1a2a;
+        }
+
+        .panel{
+            background:#070b12;
+            border:1px solid #1a3a6a;
+            border-radius:12px;
+            padding:24px;
+            margin-bottom:20px;
+            box-shadow:0 0 15px #0a1a3a33;
+        }
+
+        .panel-title{
+            font-size:11px;
+            font-weight:700;
+            color:#4a8acc;
+            text-transform:uppercase;
+            letter-spacing:3px;
+            margin-bottom:16px;
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+
+        .form-group{
+            margin-bottom:16px;
+        }
+
+        .form-group label{
+            display:block;
+            font-size:12px;
+            color:#4a8acc;
+            margin-bottom:8px;
+            letter-spacing:1px;
+        }
+
+        .form-group input,
+        .form-group select{
+            width:100%;
+            padding:10px 14px;
+            background:#070b12;
+            border:1px solid #1a3a6a;
+            color:#4a9eff;
+            border-radius:8px;
+            font-size:13px;
+            font-family:'Orbitron','Courier New',monospace;
+            outline:none;
+            transition:0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus{
+            border-color:#4a9eff;
+            box-shadow:0 0 20px #1a4a8a66;
+        }
+
+        .form-row{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:12px;
+            margin-bottom:16px;
+        }
+
+        .btn{
+            padding:10px 28px;
+            border:none;
+            border-radius:8px;
+            font-size:12px;
+            font-weight:700;
+            cursor:pointer;
+            transition:0.3s;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            text-transform:uppercase;
+            letter-spacing:1.5px;
+            font-family:'Orbitron','Courier New',monospace;
+            border:1px solid;
+        }
+
+        .btn-primary{
+            background:transparent;
+            color:#4a9eff;
+            border-color:#1a4a8a;
+        }
+
+        .btn-primary:hover{
+            background:#1a3a6a;
+            box-shadow:0 0 25px #1a4a8a88;
+        }
+
+        .btn-danger{
+            background:transparent;
+            color:#ff4466;
+            border-color:#6a1a2a;
+        }
+
+        .btn-danger:hover{
+            background:#5a1a2a;
+        }
+
+        .btn-sm{
+            padding:6px 14px;
+            font-size:10px;
+            border-radius:6px;
+        }
+
+        .btn-block{
+            width:100%;
+            justify-content:center;
+        }
+
+        .stats-bar{
+            display:flex;
+            gap:20px;
+            flex-wrap:wrap;
+            padding:12px 0;
+            border-bottom:2px solid #1a3a6a;
+            margin-bottom:12px;
+            font-size:11px;
+            color:#4a8acc;
+        }
+
+        .stats-bar span strong{
+            color:#4a9eff;
+        }
+
+        .message{
+            padding:12px;
+            border-radius:8px;
+            margin-bottom:12px;
+            font-size:11px;
+            display:none;
+        }
+
+        .message.show{
+            display:block;
+        }
+
+        .message.success{
+            background:#0a2a1a;
+            color:#4aff88;
+            border:1px solid #1a6a3a;
+        }
+
+        .table-wrap{
+            overflow-x:auto;
+            margin-top:12px;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            font-size:12px;
+        }
+
+        th{
+            text-align:left;
+            padding:10px 12px;
+            color:#4a8acc;
+            font-weight:700;
+            font-size:10px;
+            text-transform:uppercase;
+            border-bottom:2px solid #1a3a6a;
+        }
+
+        td{
+            padding:10px 12px;
+            border-bottom:1px solid #0a1a2a;
+            color:#4a9effcc;
+        }
+
+        .key-text{
+            font-family:'Orbitron','Courier New',monospace;
+            color:#4a9eff;
+            font-size:11px;
+        }
+
+        .status-badge{
+            display:inline-block;
+            padding:2px 12px;
+            border-radius:50px;
+            font-size:9px;
+            font-weight:700;
+            border:1px solid;
+        }
+
+        .status-free{
+            color:#4aff88;
+            border-color:#1a6a3a;
+        }
+
+        .status-sold{
+            color:#ffcc44;
+            border-color:#6a5a1a;
+        }
+
+        .status-used{
+            color:#ff4466;
+            border-color:#6a1a2a;
+        }
+
+        .search-box{
+            width:100%;
+            padding:10px 14px;
+            background:#070b12;
+            border:1px solid #1a3a6a;
+            color:#4a9eff;
+            border-radius:8px;
+            font-size:13px;
+            font-family:'Orbitron','Courier New',monospace;
+            outline:none;
+        }
+
+        .footer{
+            text-align:center;
+            color:#4a8acc88;
+            font-size:10px;
+            padding:20px 0;
+            border-top:1px solid #1a3a6a;
+            margin-top:20px;
+        }
+
+        @media(max-width:600px){
+            .form-row{
+                grid-template-columns:1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>
+            <span class="led-indicator"></span>
+            KEY ADMIN
+        </h1>
+        <div style="display:flex;gap:10px;align-items:center;">
+            <div class="badge">
+                <span class="led-indicator"></span>
+                👤 ADMIN
+            </div>
+            <button class="logout" onclick="logout()">🚪 ĐĂNG XUẤT</button>
+        </div>
+    </div>
+
+    <div id="message"></div>
+
+    <!-- TẠO KEY MỚI -->
+    <div class="panel">
+        <div class="panel-title">
+            <span class="led-indicator" style="background:#4aff88;"></span>
+            ⚡ TẠO KEY MỚI
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Tên key:</label>
+                <input type="text" id="keyName" placeholder="vd: Game FF">
+            </div>
+            <div class="form-group">
+                <label>Số máy:</label>
+                <select id="maxDevices">
+                    <option value="1">1 máy</option>
+                    <option value="3" selected>3 máy</option>
+                    <option value="5">5 máy</option>
+                    <option value="10">10 máy</option>
+                    <option value="50">50 máy</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn btn-primary btn-block" onclick="createKey()">🚀 TẠO KEY</button>
+    </div>
+
+    <!-- DANH SÁCH KEY -->
+    <div class="panel">
+        <div class="panel-title">
+            <span class="led-indicator" style="background:#ffcc44;"></span>
+            📋 DANH SÁCH KEY
+        </div>
+
+        <div class="stats-bar">
+            <span>🟢 Chưa dùng: <strong id="countFree">0</strong></span>
+            <span>🟡 Đã bán: <strong id="countSold">0</strong></span>
+            <span>🔴 Đã dùng: <strong id="countUsed">0</strong></span>
+            <span>📦 Tổng: <strong id="countTotal">0</strong></span>
+        </div>
+
+        <input type="text" class="search-box" id="searchInput" placeholder="🔍 Tìm key..." oninput="renderTable()" style="margin-bottom:12px;">
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Key</th>
+                        <th>Tên</th>
+                        <th>Máy</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        🔐 Quản lý key FF · Admin Panel
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script>
+// Kiểm tra đăng nhập
+if (sessionStorage.getItem('admin_logged_in') !== 'true') {
+    window.location.href = 'admin-login.html';
+}
+
+let keys = [];
+
+function logout() {
+    if (confirm('Đăng xuất?')) {
+        sessionStorage.removeItem('admin_logged_in');
+        window.location.href = 'admin-login.html';
+    }
+}
+
+function loadKeys() {
+    try {
+        const data = localStorage.getItem('ff_keys_db');
+        keys = data ? JSON.parse(data) : [];
+    } catch(e) {
+        keys = [];
+    }
+}
+
+function saveKeys() {
+    localStorage.setItem('ff_keys_db', JSON.stringify(keys));
+}
+
+function showMessage(msg, type = 'success') {
+    const msgDiv = document.getElementById('message');
+    msgDiv.innerHTML = `<div class="message show ${type}">${msg}</div>`;
+    setTimeout(() => msgDiv.innerHTML = '', 4000);
+}
+
+function generateKey() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let random = '';
+    for (let i = 0; i < 16; i++) {
+        random += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `FF-${random}`;
+}
+
+function createKey() {
+    const name = document.getElementById('keyName').value.trim();
+    const maxDev = parseInt(document.getElementById('maxDevices').value);
+
+    if (!name) {
+        showMessage('❌ Vui lòng nhập tên key', 'error');
+        return;
+    }
+
+    const now = new Date();
+    const dateStr = now.getFullYear() + '-' + 
+                   String(now.getMonth()+1).padStart(2,'0') + '-' + 
+                   String(now.getDate()).padStart(2,'0');
+
+    const plainKey = generateKey();
+
+    const keyObj = {
+        id: Date.now(),
+        key: plainKey,
+        name: name,
+        maxDev: maxDev,
+        created: dateStr,
+        status: 'free',
+        activations: 0
+    };
+
+    keys.push(keyObj);
+    saveKeys();
+    renderTable();
+
+    document.getElementById('keyName').value = '';
+    showMessage(`✅ Tạo key thành công: ${plainKey}`, 'success');
+}
+
+function deleteKey(id) {
+    if (!confirm('Xóa key này?')) return;
+    keys = keys.filter(k => k.id !== id);
+    saveKeys();
+    renderTable();
+    showMessage('✅ Đã xóa', 'success');
+}
+
+function updateStatus(id, newStatus) {
+    const key = keys.find(k => k.id === id);
+    if (key) {
+        key.status = newStatus;
+        saveKeys();
+        renderTable();
+    }
+}
+
+function copyKey(keyStr) {
+    navigator.clipboard.writeText(keyStr).then(() => {
+        showMessage('📋 Đã copy!', 'success');
+    });
+}
+
+function renderTable() {
+    const search = document.getElementById('searchInput').value.toUpperCase();
+    const filtered = search ? keys.filter(k => k.key.includes(search) || k.name.toUpperCase().includes(search)) : keys;
+
+    const tbody = document.getElementById('tableBody');
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">Không có key</td></tr>';
+    } else {
+        let html = '';
+        for (let i = 0; i < filtered.length; i++) {
+            const k = filtered[i];
+            const statusMap = {
+                'free': '<span class="status-badge status-free">🟢 Chưa dùng</span>',
+                'sold': '<span class="status-badge status-sold">🟡 Đã bán</span>',
+                'used': '<span class="status-badge status-used">🔴 Đã dùng</span>'
+            };
+
+            html += `<tr>
+                <td>${i+1}</td>
+                <td><span class="key-text">${k.key}</span></td>
+                <td>${k.name}</td>
+                <td>${k.maxDev}</td>
+                <td>${statusMap[k.status]}</td>
+                <td>
+                    <select class="btn btn-sm" style="font-size:9px;padding:3px 6px;" onchange="updateStatus(${k.id}, this.value)">
+                        <option value="">Đổi</option>
+                        <option value="free">🟢 Chưa dùng</option>
+                        <option value="sold">🟡 Đã bán</option>
+                        <option value="used">🔴 Đã dùng</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm" style="font-size:9px;padding:3px 6px;" onclick="copyKey('${k.key}')">📋</button>
+                    <button class="btn btn-danger btn-sm" style="font-size:9px;padding:3px 6px;" onclick="deleteKey(${k.id})">🗑️</button>
+                </td>
+            </tr>`;
+        }
+        tbody.innerHTML = html;
+    }
+
+    const free = keys.filter(k => k.status === 'free').length;
+    const sold = keys.filter(k => k.status === 'sold').length;
+    const used = keys.filter(k => k.status === 'used').length;
+    
+    document.getElementById('countFree').textContent = free;
+    document.getElementById('countSold').textContent = sold;
+    document.getElementById('countUsed').textContent = used;
+    document.getElementById('countTotal').textContent = keys.length;
+}
+
+loadKeys();
+renderTable();
+</script>
+</body>
+</html>
