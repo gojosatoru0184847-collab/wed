@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login · Key Manager</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
 
@@ -144,6 +143,12 @@
             border:1px solid #6a1a2a;
         }
 
+        .message.success{
+            background:#0a2a1a;
+            color:#4aff88;
+            border:1px solid #1a6a3a;
+        }
+
         .btn{
             width:100%;
             padding:14px;
@@ -204,102 +209,41 @@
 
         <div class="footer">
             <p>💡 Chỉ admin mới có quyền truy cập</p>
-            <p style="margin-top:8px;">🔐 Mật khẩu được mã hóa 4 lớp</p>
+            <p style="margin-top:8px;">Mật khẩu: <strong style="color:#4a9eff;">admin123</strong></p>
         </div>
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script>
-// Hàm mã hóa 4 lớp
-function encrypt4Layers(text) {
-    const salt1 = "layer1_2024";
-    const salt2 = "layer2_crypto";
-    const salt3 = "layer3_secure";
-    const salt4 = "layer4_final";
-
-    // Lớp 1: Base64
-    let encrypted = btoa(text);
-
-    // Lớp 2: SHA256
-    encrypted = CryptoJS.SHA256(encrypted + salt1).toString();
-
-    // Lớp 3: AES
-    encrypted = CryptoJS.AES.encrypt(encrypted + salt2, salt2).toString();
-
-    // Lớp 4: Custom encryption
-    let final = "";
-    for (let i = 0; i < encrypted.length; i++) {
-        final += String.fromCharCode(encrypted.charCodeAt(i) ^ salt4.charCodeAt(i % salt4.length));
-    }
-    encrypted = btoa(final);
-
-    return encrypted;
-}
-
-// Hàm giải mã 4 lớp
-function decrypt4Layers(encrypted) {
-    const salt1 = "layer1_2024";
-    const salt2 = "layer2_crypto";
-    const salt3 = "layer3_secure";
-    const salt4 = "layer4_final";
-
-    try {
-        // Lớp 4: Custom decryption
-        let data = atob(encrypted);
-        let decrypted = "";
-        for (let i = 0; i < data.length; i++) {
-            decrypted += String.fromCharCode(data.charCodeAt(i) ^ salt4.charCodeAt(i % salt4.length));
-        }
-
-        // Lớp 3: AES decrypt
-        decrypted = CryptoJS.AES.decrypt(decrypted, salt2).toString(CryptoJS.enc.Utf8);
-        decrypted = decrypted.replace(salt2, "");
-
-        // Lớp 2: Kiểm tra SHA256
-        // (SHA256 không thể reverse, chỉ verify)
-
-        // Lớp 1: Base64 decode
-        decrypted = atob(decrypted);
-
-        return decrypted;
-    } catch(e) {
-        return null;
-    }
-}
-
-// Mật khẩu admin được mã hóa 4 lớp
-const ADMIN_PASSWORD_ENCRYPTED = encrypt4Layers("admin123");
-
-// Lưu mật khẩu vào console (để debug)
-console.log("Admin password (encrypted 4 layers):", ADMIN_PASSWORD_ENCRYPTED);
-
 function login() {
     const password = document.getElementById('password').value;
     const msgDiv = document.getElementById('message');
 
     if (password === '') {
         msgDiv.textContent = '❌ Vui lòng nhập mật khẩu';
-        msgDiv.classList.add('show', 'error');
+        msgDiv.className = 'message show error';
         return;
     }
 
-    // Mã hóa input và so sánh
-    const inputEncrypted = encrypt4Layers(password);
+    // Mật khẩu admin đơn giản
+    const ADMIN_PASSWORD = "admin123";
 
-    if (inputEncrypted !== ADMIN_PASSWORD_ENCRYPTED) {
-        msgDiv.textContent = '❌ Mật khẩu không chính xác';
-        msgDiv.classList.add('show', 'error');
+    if (password !== ADMIN_PASSWORD) {
+        msgDiv.textContent = '❌ Mật khẩu không chính xác. Thử lại!';
+        msgDiv.className = 'message show error';
         document.getElementById('password').value = '';
         return;
     }
 
-    // Lưu session đăng nhập
-    sessionStorage.setItem('admin_logged_in', 'true');
-    sessionStorage.setItem('admin_token', btoa(Date.now().toString()));
+    // Đăng nhập thành công
+    msgDiv.textContent = '✅ Đang chuyển hướng...';
+    msgDiv.className = 'message show success';
     
-    // Chuyển hướng
-    window.location.href = 'admin-panel.html';
+    sessionStorage.setItem('admin_logged_in', 'true');
+    
+    setTimeout(() => {
+        window.location.href = 'admin-panel.html';
+    }, 1000);
 }
 </script>
 </body>
