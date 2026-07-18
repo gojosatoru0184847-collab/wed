@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key Manager · DEV TRANDUC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Press+Start+2P&family=Major+Mono+Display&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes ledBlink {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px #4a9eff, 0 0 20px #4a9eff, 0 0 40px #1a4a8a; }
+            50% { opacity: 0.3; box-shadow: 0 0 5px #4a9eff, 0 0 10px #1a4a8a, 0 0 20px #0a1a3a; }
+        }
+
+        @keyframes ledBlinkFast {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px #ff4466, 0 0 20px #ff4466, 0 0 40px #6a1a2a; }
+            25% { opacity: 0.4; box-shadow: 0 0 5px #ff4466, 0 0 10px #6a1a2a; }
+            50% { opacity: 1; box-shadow: 0 0 10px #ff4466, 0 0 20px #ff4466, 0 0 40px #6a1a2a; }
+            75% { opacity: 0.4; box-shadow: 0 0 5px #ff4466, 0 0 10px #6a1a2a; }
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 10px #1a4a8a66, 0 0 20px #1a4a8a44; }
+            50% { text-shadow: 0 0 20px #4a9eff, 0 0 40px #4a9eff88, 0 0 60px #1a4a8a66; }
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { border-color: #1a3a6a; box-shadow: 0 0 10px #0a1a3a33; }
+            50% { border-color: #4a9eff; box-shadow: 0 0 25px #1a4a8a66, inset 0 0 25px #0a1a3a44; }
+        }
+
+        @keyframes keyHighlight {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); background: #0a1a3a66; }
+            100% { transform: scale(1); }
+        }
+
+        /* ===== BASE ===== */
+        body{
+            background:#070b12;
+            color:#4a9eff;
+            font-family:'Orbitron','CPS10','Courier New',monospace;
+            padding:20px;
+            display:flex;
+            justify-content:center;
+            min-height:100vh;
+            background-image:radial-gradient(ellipse at 50% 0%, #0a1628 0%, #070b12 70%);
+            position:relative;
+            overflow-x:hidden;
+        }
+
+        /* ===== SCANLINE OVERLAY ===== */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 20, 40, 0.03) 2px,
+                rgba(0, 20, 40, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ===== SCANNING LINE ===== */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -100%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #4a9eff44, #4a9eff88, #4a9eff44, transparent);
+            animation: scanline 6s linear infinite;
+            pointer-events: none;
+            z-index: 9998;
+            box-shadow: 0 0 20px #4a9eff44;
+        }
+
+        .container{max-width:1100px;width:100%;position:relative;z-index:1;}
+
+        /* ===== HEADER ===== */
+        .header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:16px 0;
+            border-bottom:1px solid #1a3a6a;
+            margin-bottom:24px;
+            flex-wrap:wrap;
+            gap:10px;
+            position:relative;
+        }
+
+        .header h1{
+            font-size:22px;
+            font-weight:900;
+            color:#4a9eff;
+            letter-spacing:2px;
+            font-family:'Orbitron','CPS10',monospace;
+            animation: titleGlow 3s ease-in-out infinite;
+            display:flex;
+            align-items:center;
+            gap:12px;
+        }
+
+        /* ===== LED INDICATOR ===== */
+        .led-indicator {
+            display:inline-block;
+            width:12px;
+            height:12px;
+            border-radius:50%;
+            background:#4a9eff;
+            animation: ledBlink 1.5s ease-in-out infinite;
+            flex-shrink:0;
+        }
+        .led-indicator.green { background:#4aff88; animation: ledBlink 1.2s ease-in-out infinite; box-shadow: 0 0 10px #4aff88, 0 0 20px #4aff8844; }
+        .led-indicator.red { background:#ff4466; animation: ledBlinkFast 0.8s ease-in-out infinite; box-shadow: 0 0 10px #ff4466, 0 0 20px #ff446644; }
+        .led-indicator.yellow { background:#ffcc44; animation: ledBlink 1.8s ease-in-out infinite; box-shadow: 0 0 10px #ffcc44, 0 0 20px #ffcc4444; }
+
+        .header .badge{
+            font-size:10px;
+            color:#4a8acc;
+            background:#070b12;
+            padding:4px 14px;
+            border-radius:50px;
+            border:1px solid #1a3a6a;
+            box-shadow:0 0 10px #1a3a6a44;
+            font-family:'Orbitron','CPS10',monospace;
+            letter-spacing:1px;
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+        .header .badge strong{color:#4a9eff;text-shadow:0 0 10px #1a4a8a66;}
+
+        /* ===== PANELS ===== */
+        .panel{
+            background:#070b12;
+            border:1px solid #1a3a6a;
+            border-radius:12px;
+            padding:24px;
+            margin-bottom:20px;
+            box-shadow:0 0 15px #0a1a3a33,inset 0 0 15px #0a1a3a22;
+            position:relative;
+            overflow:hidden;
+            transition: all 0.5s ease;
+        }
+
+        /* ===== PANEL BORDER GLOW (nhấp nháy viền) ===== */
+        .panel.panel-active {
+            animation: borderGlow 4s ease-in-out infinite;
+        }
+
+        /* ===== PANEL TITLE ===== */
+        .panel-title{
+            font-size:11px;
+            font-weight:700;
+            color:#4a8acc;
+            text-transform:uppercase;
+            letter-spacing:3px;
+            margin-bottom:16px;
+            text-shadow:0 0 8px #1a4a8a44;
+            font-family:'Orbitron','CPS10',monospace;
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+
+        /* ===== KEY DISPLAY (nhấp nháy khi mới tạo) ===== */
+        .key-display{
+            background:#070b12;
+            border:2px solid #1a4a8a;
+            border-radius:10px;
+            padding:16px 20px;
+            margin:12px 0;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+            gap:10px;
+            box-shadow:0 0 20px #1a3a6a66,inset 0 0 20px #0a1a3a33;
+            animation: keyHighlight 2s ease-in-out 2;
+        }
+        .key-display .key{
+            font-family:'Orbitron','CPS10','Courier New',monospace;
+            font-size:18px;
+            font-weight:900;
+            color:#4a9eff;
+            letter-spacing:1.5px;
+            word-break:break-all;
+            text-shadow:0 0 12px #1a4a8a66;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn{
+            padding:10px 28px;
+            border:none;
+            border-radius:8px;
+            font-size:12px;
+            font-weight:700;
+            cursor:pointer;
+            transition:0.3s;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            text-transform:uppercase;
+            letter-spacing:1.5px;
+            font-family:'Orbitron','CPS10',monospace;
+            position:relative;
+            overflow:hidden;
+        }
+        .btn-primary{
+            background:transparent;
+            color:#4a9eff;
+            border:1px solid #1a4a8a;
+            box-shadow:0 0 12px #1a3a6a44,inset 0 0 12px #0a1a3a33;
+        }
+        .btn-primary:hover{
+            transform:scale(1.02);
+            background:#1a3a6a;
+            color:#8ac4ff;
+            box-shadow:0 0 25px #1a4a8a88,inset 0 0 15px #2a5a9a66;
+        }
+
+        .btn-success{
+            background:transparent;
+            color:#4aff88;
+            border:1px solid #1a6a3a;
+            box-shadow:0 0 12px #1a6a3a44;
+        }
+        .btn-success:hover{
+            background:#1a5a3a;
+            color:#8affaa;
+            box-shadow:0 0 25px #2a8a5a88;
+        }
+
+        .btn-danger{
+            background:transparent;
+            color:#ff4466;
+            border:1px solid #6a1a2a;
+            box-shadow:0 0 12px #6a1a2a44;
+        }
+        .btn-danger:hover{
+            background:#5a1a2a;
+            color:#ff6688;
+            box-shadow:0 0 25px #8a2a4a88;
+        }
+
+        .btn-sm{padding:6px 14px;font-size:10px;border-radius:6px;letter-spacing:1px;}
+        .btn-outline{
+            background:transparent;
+            border:1px solid #1a3a6a;
+            color:#4a8acc;
+            box-shadow:0 0 10px #0a1a3a33;
+        }
+        .btn-outline:hover{
+            background:#1a2a4a;
+            border-color:#4a9eff;
+            box-shadow:0 0 15px #1a4a8a66;
+        }
+
+        .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+        .row label{font-size:12px;color:#4a8acc;min-width:100px;text-shadow:0 0 6px #1a4a8a44;font-family:'Orbitron','CPS10',monospace;letter-spacing:1px;}
+        .row select{flex:1;min-width:150px;padding:10px 14px;background:#070b12;border:1px solid #1a3a6a;color:#4a9eff;border-radius:8px;font-size:13px;outline:none;transition:0.3s;box-shadow:0 0 10px #0a1a3a33;font-family:'Orbitron','CPS10',monospace;}
+        .row select:focus{border-color:#4a9eff;box-shadow:0 0 20px #1a4a8a66,inset 0 0 10px #1a3a6a44;}
+        .row select option{background:#070b12;color:#4a9eff;}
+
+        /* ===== STATS BAR ===== */
+        .stats-bar{
+            display:flex;
+            gap:20px;
+            flex-wrap:wrap;
+            padding:10px 0;
+            border-bottom:2px solid #1a3a6a;
+            margin-bottom:12px;
+            font-size:11px;
+            color:#4a8acc;
+            text-shadow:0 0 6px #1a4a8a44;
+            font-family:'Orbitron','CPS10',monospace;
+            letter-spacing:0.5px;
+        }
+        .stats-bar span{
+            display:flex;
+            align-items:center;
+            gap:6px;
+        }
+        .stats-bar strong{
+            color:#4a9eff;
+            font-size:13px;
+            text-shadow:0 0 10px #1a4a8a66;
+            font-weight:900;
+        }
+
+        /* ===== SEARCH BOX ===== */
+        .search-box{
+            width:100%;
+            padding:10px 14px;
+            background:#070b12;
+            border:1px solid #1a3a6a;
+            color:#4a9eff;
+            border-radius:8px;
+            font-size:13px;
+            outline:none;
+            transition:0.3s;
+            box-shadow:0 0 10px #0a1a3a33;
+            font-family:'Orbitron','CPS10',monospace;
+            letter-spacing:0.5px;
+        }
+        .search-box:focus{
+            border-color:#4a9eff;
+            box-shadow:0 0 20px #1a4a8a66,inset 0 0 10px #1a3a6a44;
+        }
+        .search-box::placeholder{
+            color:#4a8acc66;
+            font-family:'Orbitron','CPS10',monospace;
+            font-size:11px;
+        }
+
+        /* ===== TABLE ===== */
+        .table-wrap{overflow-x:auto;margin-top:12px;}
+        table{width:100%;border-collapse:collapse;font-size:12px;}
+        th{
+            text-align:left;
+            padding:10px 12px;
+            color:#4a8acc;
+            font-weight:700;
+            font-size:10px;
+            text-transform:uppercase;
+            letter-spacing:2px;
+            border-bottom:2px solid #1a3a6a;
+            text-shadow:0 0 6px #1a4a8a44;
+            font-family:'Orbitron','CPS10',monospace;
+        }
+        td{
+            padding:10px 12px;
+            border-bottom:1px solid #0a1a2a;
+            color:#4a9effcc;
+            font-family:'Orbitron','CPS10',monospace;
+            font-size:11px;
+        }
+        td .key-text{
+            font-family:'Orbitron','CPS10','Courier New',monospace;
+            font-size:12px;
+            color:#4a9eff;
+            text-shadow:0 0 10px #1a4a8a55;
+            letter-spacing:0.5px;
+        }
+
+        /* ===== STATUS BADGE ===== */
+        .status-badge{
+            display:inline-block;
+            padding:2px 12px;
+            border-radius:50px;
+            font-size:9px;
+            font-weight:700;
+            text-shadow:0 0 6px currentColor44;
+            letter-spacing:1px;
+            font-family:'Orbitron','CPS10',monospace;
+        }
+        .status-free{
+            background:transparent;
+            color:#4aff88;
+            border:1px solid #1a6a3a;
+            box-shadow:0 0 12px #1a6a3a44;
+        }
+        .status-sold{
+            background:transparent;
+            color:#ffcc44;
+            border:1px solid #6a5a1a;
+            box-shadow:0 0 12px #6a5a1a44;
+        }
+        .status-used{
+            background:transparent;
+            color:#ff4466;
+            border:1px solid #6a1a2a;
+            box-shadow:0 0 12px #6a1a2a44;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer{
+            text-align:center;
+            color:#4a8acc88;
+            font-size:10px;
+            padding:20px 0;
+            border-top:1px solid #1a3a6a;
+            margin-top:20px;
+            text-shadow:0 0 6px #1a4a8a44;
+            font-family:'Orbitron','CPS10',monospace;
+            letter-spacing:2px;
+        }
+
+        /* ===== UTILITY ===== */
+        .flex{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+        .gap-8{gap:8px;}
+        .mt-12{margin-top:12px;}
+        .mb-12{margin-bottom:12px;}
+        .text-muted{
+            color:#4a8acc88;
+            font-size:11px;
+            text-shadow:0 0 6px #1a4a8a44;
+            font-family:'Orbitron','CPS10',monospace;
+        }
+        .table-wrap tr:hover td{background:#0a1a3a33;}
+        .btn, .key-display, .panel, .search-box, .row select, .status-badge{transition:all 0.3s ease;}
+
+        /* ===== RESPONSIVE ===== */
+        @media(max-width:600px){
+            .header h1{font-size:16px;letter-spacing:1px;}
+            .panel{padding:16px;}
+            .row label{min-width:70px;font-size:10px;}
+            .key-display .key{font-size:14px;}
+            td,th{padding:6px 8px;font-size:10px;}
+            body::after { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+        <h1>
+            <span class="led-indicator"></span>
+            <span>KEY</span> MANAGER
+        </h1>
+        <div class="badge">
+            <span class="led-indicator green"></span>
+            👤 <strong>DEV TRANDUC</strong> · Restricted
+        </div>
+    </div>
+
+    <!-- ===== PANEL 1: TẠO KEY ===== -->
+    <div class="panel panel-active">
+        <div class="panel-title">
+            <span class="led-indicator green"></span>
+            📦 TẠO KEY MỚI
+        </div>
+        <div class="row">
+            <label>Số máy tối đa:</label>
+            <select id="maxDevices">
+                <option value="1">1 máy</option>
+                <option value="2">2 máy</option>
+                <option value="3" selected>3 máy</option>
+                <option value="5">5 máy</option>
+                <option value="10">10 máy</option>
+                <option value="20">20 máy</option>
+                <option value="50">50 máy</option>
+                <option value="100">100 máy</option>
+                <option value="9999">Không giới hạn</option>
+            </select>
+            <button class="btn btn-primary" onclick="generateKey()">🚀 TẠO KEY</button>
+        </div>
+        <div id="result" class="mt-12"></div>
+    </div>
+
+    <!-- ===== PANEL 2: DANH SÁCH KEY ===== -->
+    <div class="panel panel-active">
+        <div class="panel-title">
+            <span class="led-indicator yellow"></span>
+            📋 DANH SÁCH KEY
+        </div>
+        <div class="stats-bar">
+            <span>🟢 Chưa dùng: <strong id="countFree">0</strong></span>
+            <span>🟡 Đã bán: <strong id="countSold">0</strong></span>
+            <span>🔴 Đã dùng: <strong id="countUsed">0</strong></span>
+            <span>📦 Tổng: <strong id="countTotal">0</strong></span>
+        </div>
+        <div class="flex gap-8 mb-12">
+            <input class="search-box" id="searchInput" placeholder="🔍 Tìm key..." oninput="renderTable()" style="flex:1;">
+            <button class="btn btn-danger btn-sm" onclick="clearAllKeys()">🗑️ Xóa tất cả</button>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>#</th><th>Key</th><th>Số máy</th><th>Ngày tạo</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== PANEL 3: LỊCH SỬ ===== -->
+    <div class="panel panel-active">
+        <div class="panel-title">
+            <span class="led-indicator red"></span>
+            📜 LỊCH SỬ KÍCH HOẠT
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Key</th><th>Mã máy</th><th>Thời gian</th><th>User Agent</th></tr></thead>
+                <tbody id="logBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span class="led-indicator green" style="display:inline-block;width:6px;height:6px;vertical-align:middle;margin-right:8px;"></span>
+        🔒 Key được mã hóa · Chỉ dùng được số máy đã chọn
+    </div>
+</div>
+
+<script>
+var keys = [];
+
+function loadKeys() {
+    try { var data = localStorage.getItem('tranduc_keys'); keys = data ? JSON.parse(data) : []; } catch(e){ keys = []; }
+}
+
+function saveKeys() { localStorage.setItem('tranduc_keys', JSON.stringify(keys)); }
+
+function generateKey() {
+    var maxDev = parseInt(document.getElementById('maxDevices').value);
+    var prefix = 'TRANDUC';
+    var random = '';
+    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    for (var i = 0; i < 12; i++) random += chars.charAt(Math.floor(Math.random() * chars.length));
+    var key = prefix + '-' + random;
+    var hash = 0;
+    for (var i = 0; i < key.length; i++) { hash = ((hash << 5) - hash) + key.charCodeAt(i); hash = hash & hash; }
+    var checksum = Math.abs(hash).toString(16).toUpperCase().slice(0, 4);
+    var fullKey = key + '-' + checksum;
+    var now = new Date();
+    var dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    var timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    
+    keys.push({ key: fullKey, maxDev: maxDev, created: dateStr + ' ' + timeStr, status: 'free' });
+    saveKeys();
+    renderTable();
+    renderLogs();
+    
+    document.getElementById('result').innerHTML = `
+        <div class="key-display">
+            <div>
+                <div class="key">⚡ ${fullKey}</div>
+                <div class="info" style="font-size:11px;color:#4a8acc;font-family:Orbitron,CPS10,monospace;letter-spacing:0.5px;">📦 Dùng được <strong style="color:#4a9eff;text-shadow:0 0 10px #1a4a8a66;">${maxDev}</strong> máy · 📅 ${dateStr} ${timeStr}</div>
+            </div>
+            <div class="flex">
+                <button class="btn btn-success btn-sm" onclick="copyKey('${fullKey}',${maxDev},'${dateStr} ${timeStr}')">📋 Copy</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteKey('${fullKey}')">🗑️</button>
+            </div>
+        </div>
+    `;
+}
+
+function copyKey(key, maxDev, time) {
+    var text = '⚡ KEY: ' + key + '\n📦 Số máy: ' + maxDev + '\n📅 ' + time;
+    navigator.clipboard.writeText(text).then(() => alert('✅ Đã copy key!')).catch(() => {
+        var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('✅ Đã copy key!');
+    });
+}
+
+function deleteKey(key) {
+    if (!confirm('Xóa key ' + key + '?')) return;
+    keys = keys.filter(k => k.key !== key);
+    saveKeys();
+    renderTable();
+    renderLogs();
+    document.getElementById('result').innerHTML = '';
+}
+
+function toggleStatus(key) {
+    var item = keys.find(k => k.key === key);
+    if (!item) return;
+    if (item.status === 'free') item.status = 'sold';
+    else if (item.status === 'sold') item.status = 'used';
+    else item.status = 'free';
+    saveKeys();
+    renderTable();
+}
+
+function clearAllKeys() {
+    if (!confirm('Xóa TOÀN BỘ key?')) return;
+    keys = [];
+    saveKeys();
+    renderTable();
+    renderLogs();
+    document.getElementById('result').innerHTML = '';
+}
+
+function renderTable() {
+    var search = document.getElementById('searchInput').value.toLowerCase().trim();
+    var filtered = search ? keys.filter(k => k.key.toLowerCase().includes(search)) : keys;
+    var tbody = document.getElementById('tableBody');
+    
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#4a8acc88;font-family:Orbitron,CPS10,monospace;font-size:11px;">Chưa có key nào</td></tr>';
+    } else {
+        var html = '';
+        for (var i = 0; i < filtered.length; i++) {
+            var k = filtered[i];
+            var statusMap = {
+                'free': '<span class="status-badge status-free">🟢 Chưa dùng</span>',
+                'sold': '<span class="status-badge status-sold">🟡 Đã bán</span>',
+                'used': '<span class="status-badge status-used">🔴 Đã dùng</span>'
+            };
+            html += `<tr>
+                <td>${i+1}</td>
+                <td><span class="key-text">${k.key}</span></td>
+                <td>${k.maxDev}</td>
+                <td style="font-size:10px;color:#4a8acc88;font-family:Orbitron,CPS10,monospace;">${k.created}</td>
+                <td>${statusMap[k.status] || statusMap.free}</td>
+                <td>
+                    <button class="btn btn-success btn-sm" style="padding:3px 12px;font-size:9px;" onclick="toggleStatus('${k.key}')">🔄</button>
+                    <button class="btn btn-danger btn-sm" style="padding:3px 12px;font-size:9px;" onclick="deleteKey('${k.key}')">🗑️</button>
+                    <button class="btn btn-outline btn-sm" style="padding:3px 12px;font-size:9px;" onclick="copyKey('${k.key}',${k.maxDev},'${k.created}')">📋</button>
+                </td>
+            </tr>`;
+        }
+        tbody.innerHTML = html;
+    }
+    
+    var free = keys.filter(k => k.status === 'free').length;
+    var sold = keys.filter(k => k.status === 'sold').length;
+    var used = keys.filter(k => k.status === 'used').length;
+    document.getElementById('countFree').textContent = free;
+    document.getElementById('countSold').textContent = sold;
+    document.getElementById('countUsed').textContent = used;
+    document.getElementById('countTotal').textContent = keys.length;
+}
+
+function renderLogs() {
+    try {
+        var logs = JSON.parse(localStorage.getItem('tranduc_activation_logs') || '[]');
+        var tbody = document.getElementById('logBody');
+        if (!tbody) return;
+        if (logs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:#4a8acc88;font-family:Orbitron,CPS10,monospace;font-size:11px;">Chưa có log kích hoạt nào</td></tr>';
+            return;
+        }
+        var html = '';
+        for (var i = logs.length - 1; i >= 0; i--) {
+            var log = logs[i];
+            html += '<tr><td style="font-family:Orbitron,CPS10,Courier New,monospace;font-size:11px;color:#4a9eff;text-shadow:0 0 10px #1a4a8a55;letter-spacing:0.5px;">' + log.key + '</td><td style="font-family:Orbitron,CPS10,monospace;font-size:10px;color:#4a8acc;">' + log.machineId + '</td><td style="font-size:10px;color:#4a8acc88;font-family:Orbitron,CPS10,monospace;">' + log.time + '</td><td style="font-size:9px;color:#4a8acc88;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:Orbitron,CPS10,monospace;">' + (log.userAgent || '') + '</td></tr>';
+        }
+        tbody.innerHTML = html;
+    } catch(e) {}
+}
+
+loadKeys();
+renderTable();
+renderLogs();
+</script>
+</body>
+</html>
