@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login · Key Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        @keyframes ledBlink {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px #4a9eff; }
+            50% { opacity: 0.3; }
+        }
+
+        body{
+            background:#070b12;
+            color:#4a9eff;
+            font-family:'Orbitron','Courier New',monospace;
+            padding:20px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+            background-image:radial-gradient(ellipse at 50% 0%, #0a1628 0%, #070b12 70%);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 20, 40, 0.03) 2px,
+                rgba(0, 20, 40, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .container{
+            max-width:500px;
+            width:100%;
+            position:relative;
+            z-index:1;
+        }
+
+        .card{
+            background:#070b12;
+            border:2px solid #1a4a8a;
+            border-radius:12px;
+            padding:40px;
+            box-shadow:0 0 30px #0a1a3a44;
+            text-align:center;
+        }
+
+        .header{
+            margin-bottom:40px;
+        }
+
+        .header h1{
+            font-size:28px;
+            font-weight:900;
+            color:#4a9eff;
+            letter-spacing:2px;
+            margin-bottom:8px;
+        }
+
+        .led-indicator {
+            display:inline-block;
+            width:12px;
+            height:12px;
+            border-radius:50%;
+            background:#ff4466;
+            animation: ledBlink 0.8s ease-in-out infinite;
+            margin-right:8px;
+        }
+
+        .header p{
+            font-size:12px;
+            color:#4a8acc;
+            letter-spacing:1px;
+        }
+
+        .form-group{
+            margin-bottom:20px;
+            text-align:left;
+        }
+
+        .form-group label{
+            display:block;
+            font-size:12px;
+            color:#4a8acc;
+            margin-bottom:8px;
+            letter-spacing:1px;
+            text-transform:uppercase;
+        }
+
+        .form-group input{
+            width:100%;
+            padding:12px 16px;
+            background:#070b12;
+            border:1px solid #1a4a8a;
+            color:#4a9eff;
+            border-radius:8px;
+            font-size:14px;
+            font-family:'Orbitron','Courier New',monospace;
+            outline:none;
+            transition:0.3s;
+            letter-spacing:1px;
+        }
+
+        .form-group input:focus{
+            border-color:#4a9eff;
+            box-shadow:0 0 20px #1a4a8a66;
+        }
+
+        .form-group input::placeholder{
+            color:#4a8acc66;
+        }
+
+        .message{
+            padding:12px;
+            border-radius:8px;
+            margin-bottom:20px;
+            font-size:11px;
+            letter-spacing:0.5px;
+            display:none;
+        }
+
+        .message.show{
+            display:block;
+        }
+
+        .message.error{
+            background:#2a0a0a;
+            color:#ff4466;
+            border:1px solid #6a1a2a;
+        }
+
+        .btn{
+            width:100%;
+            padding:14px;
+            border:none;
+            border-radius:8px;
+            font-size:14px;
+            font-weight:700;
+            cursor:pointer;
+            transition:0.3s;
+            text-transform:uppercase;
+            letter-spacing:2px;
+            font-family:'Orbitron','Courier New',monospace;
+            border:1px solid #1a4a8a;
+            background:transparent;
+            color:#4a9eff;
+            box-shadow:0 0 15px #1a3a6a44;
+        }
+
+        .btn:hover{
+            background:#1a3a6a;
+            box-shadow:0 0 30px #1a4a8a88;
+            transform:scale(1.02);
+        }
+
+        .footer{
+            margin-top:30px;
+            font-size:10px;
+            color:#4a8acc88;
+            letter-spacing:1px;
+        }
+
+        @media(max-width:600px){
+            .card{padding:30px;}
+            .header h1{font-size:22px;}
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="card">
+        <div class="header">
+            <h1>
+                <span class="led-indicator"></span>
+                ADMIN LOGIN
+            </h1>
+            <p>🔐 Key Manager · Restricted Access</p>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <div class="form-group">
+            <label>🔑 Mật khẩu Admin:</label>
+            <input type="password" id="password" placeholder="Nhập mật khẩu" onkeypress="if(event.key==='Enter') login()">
+        </div>
+
+        <button class="btn" onclick="login()">🚀 ĐĂNG NHẬP</button>
+
+        <div class="footer">
+            <p>💡 Chỉ admin mới có quyền truy cập</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mật khẩu admin (thay đổi tại đây)
+const ADMIN_PASSWORD = "admin123";
+
+function login() {
+    const password = document.getElementById('password').value;
+    const msgDiv = document.getElementById('message');
+
+    if (password === '') {
+        msgDiv.textContent = '❌ Vui lòng nhập mật khẩu';
+        msgDiv.classList.add('show', 'error');
+        return;
+    }
+
+    if (password !== ADMIN_PASSWORD) {
+        msgDiv.textContent = '❌ Mật khẩu không chính xác';
+        msgDiv.classList.add('show', 'error');
+        document.getElementById('password').value = '';
+        return;
+    }
+
+    // Lưu session đăng nhập
+    sessionStorage.setItem('admin_logged_in', 'true');
+    
+    // Chuyển hướng đến admin panel
+    window.location.href = 'admin-panel.html';
+}
+</script>
+</body>
+</html>
