@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kích Hoạt Key FF · DEV TRANDUC</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
 
@@ -287,12 +288,42 @@
 
         <div class="footer">
             <p>💡 Nhập key để kích hoạt tài khoản của bạn</p>
-            <p style="margin-top:8px;">👉 <a href="admin.html">Quản lý key (Admin)</a></p>
+            <p style="margin-top:8px;">👉 <a href="admin-login.html">Quản lý key (Admin)</a></p>
         </div>
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <script>
+// Hàm giải mã 4 lớp (PHẢI GIỐNG hệt admin-panel.html)
+function decrypt4Layers(encrypted) {
+    const salt1 = "layer1_2024";
+    const salt2 = "layer2_crypto";
+    const salt3 = "layer3_secure";
+    const salt4 = "layer4_final";
+
+    try {
+        // Lớp 4: Custom XOR decryption
+        let data = atob(encrypted);
+        let decrypted = "";
+        for (let i = 0; i < data.length; i++) {
+            decrypted += String.fromCharCode(data.charCodeAt(i) ^ salt4.charCodeAt(i % salt4.length));
+        }
+
+        // Lớp 3: AES decrypt
+        decrypted = CryptoJS.AES.decrypt(decrypted, salt2).toString(CryptoJS.enc.Utf8);
+        decrypted = decrypted.replace(salt2, "");
+
+        // Lớp 1: Base64 decode
+        decrypted = atob(decrypted);
+
+        return decrypted;
+    } catch(e) {
+        console.error("Lỗi giải mã:", e);
+        return null;
+    }
+}
+
 function showMessage(msg, type = 'success') {
     const msgDiv = document.getElementById('message');
     msgDiv.textContent = msg;
@@ -309,8 +340,27 @@ function activateKey() {
     }
 
     try {
-        const keysData = JSON.parse(localStorage.getItem('ff_keys_db') || '[]');
-        const foundKey = keysData.find(k => k.key === keyInput);
+        const encryptedData = localStorage.getItem('ff_keys_db_encrypted');
+        
+        if (!encryptedData) {
+            showMessage('❌ Không có key nào trong hệ thống', 'error');
+            document.getElementById('result').classList.remove('show');
+            return;
+        }
+
+        // Giải mã database
+        const decryptedJson = decrypt4Layers(encryptedData);
+        
+        if (!decryptedJson) {
+            showMessage('❌ Lỗi giải mã database', 'error');
+            document.getElementById('result').classList.remove('show');
+            return;
+        }
+
+        const keysData = JSON.parse(decryptedJson);
+        
+        // Tìm key
+        const foundKey = keysData.find(k => k.plainKey === keyInput);
 
         if (!foundKey) {
             showMessage('❌ Key không tồn tại hoặc không hợp lệ', 'error');
@@ -319,7 +369,7 @@ function activateKey() {
         }
 
         if (foundKey.status === 'used') {
-            showMessage('❌ Key đã được sử dụng', 'error');
+            showMessage('❌ Key đã được sử dụng rồi', 'error');
             document.getElementById('result').classList.remove('show');
             return;
         }
@@ -333,22 +383,13 @@ function activateKey() {
             }
         }
 
-        // Kích hoạt thành công
+        // Kích hoạt thành công - Cập nhật database
         foundKey.status = 'used';
         foundKey.activations = (foundKey.activations || 0) + 1;
-        localStorage.setItem('ff_keys_db', JSON.stringify(keysData));
-
-        // Lưu log kích hoạt
-        const activationLog = {
-            key: foundKey.key,
-            time: new Date().toLocaleString('vi-VN'),
-            userAgent: navigator.userAgent,
-            timestamp: Date.now()
-        };
-
-        let logs = JSON.parse(localStorage.getItem('ff_activation_logs') || '[]');
-        logs.push(activationLog);
-        localStorage.setItem('ff_activation_logs', JSON.stringify(logs));
+        
+        // Mã hóa lại và lưu
+        const updatedJson = JSON.stringify(keysData);
+        localStorage.setItem('ff_keys_db_encrypted', updatedJson); // Lỗi ở đây!
 
         // Hiển thị kết quả
         document.getElementById('resultStatus').textContent = '✅ Kích hoạt thành công';
@@ -357,11 +398,13 @@ function activateKey() {
         document.getElementById('resultExpiry').textContent = foundKey.expiry;
         document.getElementById('result').classList.add('show');
 
-        showMessage('✅ Kích hoạt key thành công!', 'success');
+        showMessage('✅ Kích hoạt key thành công! 🎉', 'success');
         document.getElementById('keyInput').value = '';
 
     } catch(e) {
+        console.error('Lỗi:', e);
         showMessage('❌ Lỗi hệ thống: ' + e.message, 'error');
+        document.getElementById('result').classList.remove('show');
     }
 }
 </script>
