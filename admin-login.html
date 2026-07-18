@@ -120,16 +120,11 @@
             box-shadow:0 0 20px #1a4a8a66;
         }
 
-        .form-group input::placeholder{
-            color:#4a8acc66;
-        }
-
         .message{
             padding:12px;
             border-radius:8px;
             margin-bottom:20px;
             font-size:11px;
-            letter-spacing:0.5px;
             display:none;
         }
 
@@ -152,25 +147,22 @@
         .btn{
             width:100%;
             padding:14px;
-            border:none;
+            border:1px solid #1a4a8a;
             border-radius:8px;
             font-size:14px;
             font-weight:700;
             cursor:pointer;
-            transition:0.3s;
+            background:transparent;
+            color:#4a9eff;
             text-transform:uppercase;
             letter-spacing:2px;
             font-family:'Orbitron','Courier New',monospace;
-            border:1px solid #1a4a8a;
-            background:transparent;
-            color:#4a9eff;
-            box-shadow:0 0 15px #1a3a6a44;
+            transition:0.3s;
         }
 
         .btn:hover{
             background:#1a3a6a;
             box-shadow:0 0 30px #1a4a8a88;
-            transform:scale(1.02);
         }
 
         .footer{
@@ -209,7 +201,7 @@
 
         <div class="footer">
             <p>💡 Chỉ admin mới có quyền truy cập</p>
-            <p style="margin-top:8px;">Mật khẩu: <strong style="color:#4a9eff;">admin123</strong></p>
+            <p style="margin-top:8px;">Mật khẩu: <strong style="color:#4a9eff;">ductran</strong></p>
         </div>
     </div>
 </div>
@@ -225,11 +217,11 @@ function login() {
         return;
     }
 
-    // Mật khẩu admin đơn giản
-    const ADMIN_PASSWORD = "admin123";
+    // Mật khẩu admin
+    const ADMIN_PASSWORD = "ductran";
 
     if (password !== ADMIN_PASSWORD) {
-        msgDiv.textContent = '❌ Mật khẩu không chính xác. Thử lại!';
+        msgDiv.textContent = '❌ Mật khẩu không chính xác';
         msgDiv.className = 'message show error';
         document.getElementById('password').value = '';
         return;
