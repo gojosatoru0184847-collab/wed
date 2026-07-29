@@ -223,6 +223,16 @@ h1 .sub {
   font-family: 'Orbitron', 'CPS10', monospace;
 }
 
+.music-player .player-controls #musicToggleBtn {
+  width: auto !important;
+  height: 34px !important;
+  border-radius: 50px !important;
+  padding: 0 14px !important;
+  white-space: nowrap !important;
+  font-size: 12px !important;
+  gap: 6px !important;
+}
+
 .music-player .player-controls button:hover {
   background: #1a3a6a;
   border-color: #4a9eff;
