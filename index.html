@@ -24,36 +24,108 @@
         </a>
     </div>
 
-    <div class="panel">
-        <h2>🧩 CHỌN CHỨC NĂNG</h2>
-        <div class="btn-grid" id="funcGrid">
-            <button class="btn-func" data-func="BamDau">🎯 Bám Đầu</button>
-            <button class="btn-func" data-func="Aimlock">🔒 Aimlock</button>
-            <button class="btn-func" data-func="FixRung">🌀 Fix Rung</button>
-            <button class="btn-func" data-func="NheTam">🌊 Nhẹ Tâm</button>
-            <button class="btn-func" data-func="DamTam">⚓ Đầm Tâm</button>
-            <button class="btn-func" data-func="ToiUuMay">💻 Tối Ưu Máy</button>
-            <button class="btn-func" data-func="TangFPS">📈 Tăng FPS</button>
-            <button class="btn-func" data-func="LockHead">🔫 LockHead</button>
-            <button class="btn-func" data-func="FixLag">🛡️ Fix Lag</button>
-            <button class="btn-func" data-func="Optimizer">🎯 OpTimizer</button>
-            <button class="btn-func" data-func="FixShake">🔥 Fix Shake</button>
-            <button class="btn-func" data-func="Stabilizer">⚖️ Stabilizer</button>
-            <button class="btn-func" data-func="ToiUuKeoTam">🖱️ Tối Ưu Kéo Tâm</button>
-            <button class="btn-func" data-func="BamTam">🔥 Bám Tâm</button>
-            <button class="btn-func" data-func="HoldLock">💀 HoldLock</button>
+    <!-- ===== MENU TAB NAVIGATION ===== -->
+    <div style="display:flex;justify-content:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+        <button id="tabBtn1" class="menu-tab-btn active-tab" style="padding:10px 20px;border-radius:50px;border:1px solid #00d4ff;background:linear-gradient(135deg,#0066aa,#00d4ff);color:#000;font-weight:bold;font-size:13px;cursor:pointer;box-shadow:0 0 20px rgba(0,212,255,0.3);transition:0.3s;">
+            ⚡ MENU 1: GEN CODE C# SCRIPT
+        </button>
+        <button id="tabBtn2" class="menu-tab-btn" style="padding:10px 20px;border-radius:50px;border:1px solid #1a3344;background:#09121d;color:#7899b5;font-weight:bold;font-size:13px;cursor:pointer;transition:0.3s;">
+            🧊 MENU 2: TẠO SKIN BOM KEO TỪ ẢNH
+        </button>
+    </div>
+
+    <!-- ===== MENU 1 CONTENT ===== -->
+    <div id="menuContent1">
+        <div class="panel">
+            <h2>🧩 CHỌN CHỨC NĂNG</h2>
+            <div class="btn-grid" id="funcGrid">
+                <button class="btn-func" data-func="BamDau">🎯 Bám Đầu</button>
+                <button class="btn-func" data-func="Aimlock">🔒 Aimlock</button>
+                <button class="btn-func" data-func="FixRung">🌀 Fix Rung</button>
+                <button class="btn-func" data-func="NheTam">🌊 Nhẹ Tâm</button>
+                <button class="btn-func" data-func="DamTam">⚓ Đầm Tâm</button>
+                <button class="btn-func" data-func="ToiUuMay">💻 Tối Ưu Máy</button>
+                <button class="btn-func" data-func="TangFPS">📈 Tăng FPS</button>
+                <button class="btn-func" data-func="LockHead">🔫 LockHead</button>
+                <button class="btn-func" data-func="FixLag">🛡️ Fix Lag</button>
+                <button class="btn-func" data-func="Optimizer">🎯 OpTimizer</button>
+                <button class="btn-func" data-func="FixShake">🔥 Fix Shake</button>
+                <button class="btn-func" data-func="Stabilizer">⚖️ Stabilizer</button>
+                <button class="btn-func" data-func="ToiUuKeoTam">🖱️ Tối Ưu Kéo Tâm</button>
+                <button class="btn-func" data-func="BamTam">🔥 Bám Tâm</button>
+                <button class="btn-func" data-func="HoldLock">💀 HoldLock</button>
+                <button class="btn-func" data-func="AntenaDau">📡 Antena Đầu</button>
+                <button class="btn-func" data-func="ModSkinBomKeo">🧊 Mod Skin Bom Keo</button>
+                <button class="btn-func" data-func="BomKeoTrongSuot">👻 Bom Keo Trong Suốt</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="row">
+                <label>📦 Số lượng:</label>
+                <input type="number" id="fileCount" value="100" min="1" max="500">
+                <label style="min-width:60px;">Tối đa 500</label>
+            </div>
+            <div class="row">
+                <label>📁 Mã OBB / Prefix:</label>
+                <input type="text" id="classPrefix" value="Aim" placeholder="VD: Aim hoặc optionalab_weapon_054..." style="flex:1;max-width:240px;">
+            </div>
+            <div class="row" style="margin-top:8px;">
+                <label>⚙️ Đuôi File:</label>
+                <select id="fileExt" style="background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:6px 12px;border-radius:6px;font-weight:bold;outline:none;">
+                    <option value="none" selected>Mã Gốc OBB (Không đuôi file)</option>
+                    <option value=".cs">Chuẩn C# (.cs)</option>
+                    <option value=".txt">Văn bản (.txt)</option>
+                </select>
+            </div>
         </div>
     </div>
 
-    <div class="panel">
-        <div class="row">
-            <label>📦 Số lượng:</label>
-            <input type="number" id="fileCount" value="100" min="1" max="500">
-            <label style="min-width:60px;">Tối đa 500</label>
-        </div>
-        <div class="row">
-            <label>📁 Prefix class:</label>
-            <input type="text" id="classPrefix" value="Aim" style="max-width:150px;">
+    <!-- ===== MENU 2 CONTENT: MOD SKIN BOM KEO TỪ ẢNH UPLOAD ===== -->
+    <div id="menuContent2" style="display:none;">
+        <div class="panel" style="border:2px solid #00d4ff;box-shadow:0 0 30px rgba(0,212,255,0.2);">
+            <h2 style="color:#00d4ff;font-size:16px;margin-bottom:12px;text-align:center;font-weight:800;">
+                🧊 MENU 2: TẠO MOD SKIN BOM KEO BẰNG ẢNH UPLOAD
+            </h2>
+            <p style="color:#7899b5;font-size:12px;text-align:center;margin-bottom:18px;">
+                Chỉ cần tải ảnh bất kỳ lên, hệ thống sẽ tự động chuyển hóa thành Package Skin Bom Keo cho Game
+            </p>
+
+            <!-- Dropzone / Image Upload -->
+            <div style="border:2px dashed #00d4ff;border-radius:14px;padding:25px 15px;text-align:center;background:#050a14;cursor:pointer;margin-bottom:18px;transition:0.3s;" id="uploadDropzone">
+                <input type="file" id="skinImageFile" accept="image/*" style="display:none;">
+                <div id="uploadPlaceholder">
+                    <div style="font-size:42px;margin-bottom:8px;">🖼️</div>
+                    <div style="color:#00d4ff;font-size:14px;font-weight:bold;">TẢI ẢNH SKIN BẤM VÀO ĐÂY (HOẶC KÉO THẢ ẢNH)</div>
+                    <div style="color:#507090;font-size:11px;margin-top:6px;">Hỗ trợ JPG, PNG, WEBP (Ảnh nhân vật, hình dán, họa tiết...)</div>
+                </div>
+                <div id="uploadPreviewBox" style="display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;">
+                    <img id="skinImagePreview" src="" alt="Skin Preview" style="max-width:180px;max-height:180px;border-radius:10px;border:2px solid #00d4ff;box-shadow:0 0 25px rgba(0,212,255,0.5);">
+                    <span id="skinImageName" style="color:#2ed573;font-size:12px;font-weight:bold;"></span>
+                    <button type="button" id="btnRemoveImage" style="background:#ff4757;color:#fff;border:none;padding:4px 12px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:bold;">✕ Đổi ảnh khác</button>
+                </div>
+            </div>
+
+            <!-- Options for Menu 2 -->
+            <div class="row" style="margin-bottom:10px;">
+                <label style="min-width:120px;">📁 Mã OBB Bom Keo:</label>
+                <input type="text" id="obbSkinKey" placeholder="VD: optionalab_weapon_054..." value="optionalab_weapon_054.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D" style="flex:1;background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:8px 12px;border-radius:6px;font-family:monospace;font-size:12px;">
+            </div>
+            <div class="row" style="margin-bottom:18px;">
+                <label style="min-width:120px;">👻 Hiệu Ứng Xuyên:</label>
+                <select id="skinTransparency" style="flex:1;background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:8px 12px;border-radius:6px;font-weight:bold;outline:none;">
+                    <option value="none">Bình thường (Skin Ảnh Đậm)</option>
+                    <option value="transparent" selected>75% Trong Suốt (Skin Ảnh + Nhìn Xuyên Địch)</option>
+                    <option value="glow">Phát Sáng Neon Glow</option>
+                </select>
+            </div>
+
+            <!-- Action Button Menu 2 -->
+            <div style="text-align:center;">
+                <button id="btnBuildSkinFromImage" class="btn" style="width:100%;padding:14px;background:linear-gradient(135deg,#0088cc,#00d4ff);border:none;border-radius:10px;color:#000;font-size:15px;font-weight:bold;cursor:pointer;box-shadow:0 0 30px rgba(0,212,255,0.4);transition:0.3s;">
+                    🚀 CHUYỂN ẢNH THÀNH SKIN BOM KEO & TẢI VỀ
+                </button>
+            </div>
         </div>
     </div>
 
@@ -90,31 +162,45 @@
                 📱 HƯỚNG DẪN CÀI SCRIPT CHO IPHONE & ANDROID
             </h2>
 
-            <!-- TAB IPHONE -->
-            <div style="background:#060a12;border:1px solid #1a3344;border-radius:10px;padding:14px;margin-bottom:14px;">
-                <h3 style="color:#2ed573;font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-                    🍏 Dành cho IPHONE (iOS / iPad)
-                </h3>
-                <ol style="margin-left:18px;font-size:12px;line-height:1.6;color:#a0b8cc;">
-                    <li>Bấm nút <strong>TẠO</strong> → Bấm <strong>TẢI ZIP</strong> (File sẽ lưu vào ứng dụng <strong>Tệp / Files</strong>).</li>
-                    <li>Mở app <strong>Tệp (Files)</strong> → Nhấp nhẹ vào file <code>.zip</code> để tự động giải nén.</li>
-                    <li>Mở <strong>Filza File Manager</strong> (hoặc app Injector/ESign/iGameGod).</li>
-                    <li>Copy các file <code>.cs</code> dán vào thư mục Data của Game (hoặc thư mục Script của Tool VIP).</li>
-                    <li>Vào Game mở Menu Injector bấm <strong>BẬT TOOL</strong>.</li>
-                </ol>
-            </div>
-
             <!-- TAB ANDROID -->
             <div style="background:#060a12;border:1px solid #1a3344;border-radius:10px;padding:14px;margin-bottom:14px;">
                 <h3 style="color:#00d4ff;font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-                    🤖 Dành cho ANDROID (Samsung, Xiaomi, Oppo...)
+                    🤖 Dành cho ANDROID (Dùng ZArchiver)
                 </h3>
                 <ol style="margin-left:18px;font-size:12px;line-height:1.6;color:#a0b8cc;">
-                    <li>Bấm nút <strong>TẠO</strong> → Bấm <strong>TẢI ZIP</strong>.</li>
-                    <li>Mở app <strong>ZArchiver</strong> (Tải free trên CH Play) → Vào mục <strong>Download</strong>.</li>
-                    <li>Bấm vào file <code>.zip</code> → Chọn <strong>Giải nén tại đây</strong>.</li>
-                    <li>Copy toàn bộ file giải nén dán vào thư mục Data Game: <code>Android/data/tên_game/files/</code> (Hoặc dán vào app Mod Menu APK / VIP Injector).</li>
-                    <li>Mở App Tool Injector / Game để tận hưởng!</li>
+                    <li>Tải file <code>.zip</code> từ Web Tool về máy → Giải nén bằng <strong>ZArchiver</strong>.</li>
+                    <li>Sao chép file Mod vừa giải nén (file OBB mã gốc hoặc thư mục mod).</li>
+                    <li>Truy cập đường dẫn chuẩn: <br><code style="color:#00d4ff;word-break:break-all;">Android/data/com.dts.freefireth/files/contentcache/Compulsory/android/gameassetbundles/</code></li>
+                    <li>Bấm <strong>DÁN (Paste)</strong> và chọn <strong>Thay thế (Replace)</strong>.</li>
+                    <li>Mở Game vào trận đặt Bom Keo ra để tận hưởng!</li>
+                </ol>
+            </div>
+
+            <!-- TAB IPHONE -->
+            <div style="background:#060a12;border:1px solid #1a3344;border-radius:10px;padding:14px;margin-bottom:14px;">
+                <h3 style="color:#2ed573;font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                    🍏 Dành cho IPHONE (Dùng Filza)
+                </h3>
+                <ol style="margin-left:18px;font-size:12px;line-height:1.6;color:#a0b8cc;">
+                    <li>Tải file <code>.zip</code> từ Web Tool → Mở app <strong>Tệp (Files)</strong> nhấp giải nén.</li>
+                    <li>Mở <strong>Filza File Manager</strong> → Copy file mod vừa giải nén.</li>
+                    <li>Truy cập đường dẫn: <br><code style="color:#2ed573;word-break:break-all;">Containers/Data/Application/Free Fire/Library/Caches/Compulsory/android/gameassetbundles/</code></li>
+                    <li>Bấm <strong>DÁN</strong> và chọn <strong>Thay thế (Replace)</strong>.</li>
+                    <li>Mở game để trải nghiệm!</li>
+                </ol>
+            </div>
+
+            <!-- MENU 2 GUIDE: MOD SKIN BOM KEO TỪ ẢNH -->
+            <div style="background:#060a12;border:1px dashed #00d4ff;border-radius:10px;padding:14px;margin-bottom:14px;">
+                <h3 style="color:#00d4ff;font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                    🧊 Cách Cài Mod Skin Bom Keo Từ Ảnh (Menu 2)
+                </h3>
+                <ol style="margin-left:18px;font-size:12px;line-height:1.6;color:#a0b8cc;">
+                    <li>Bấm chuyển sang <strong>MENU 2</strong> → Chọn/Tải ảnh bất kỳ từ điện thoại lên.</li>
+                    <li>Bấm <strong>CHUYỂN ẢNH THÀNH SKIN BOM KEO & TẢI VỀ</strong>.</li>
+                    <li>Giải nén file ZIP nhận được → Lấy file OBB mã gốc vừa tải.</li>
+                    <li>Dán đè vào đúng thư mục <code>gameassetbundles</code> ở trên.</li>
+                    <li>Vào game đặt Bom Keo ra để chiêm ngưỡng Skin ảnh tự chọn cực ngầu!</li>
                 </ol>
             </div>
 
