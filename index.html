@@ -26,11 +26,17 @@
 
     <!-- ===== MENU TAB NAVIGATION ===== -->
     <div style="display:flex;justify-content:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
-        <button id="tabBtn1" class="menu-tab-btn active-tab" style="padding:10px 20px;border-radius:50px;border:1px solid #00d4ff;background:linear-gradient(135deg,#0066aa,#00d4ff);color:#000;font-weight:bold;font-size:13px;cursor:pointer;box-shadow:0 0 20px rgba(0,212,255,0.3);transition:0.3s;">
-            ⚡ MENU 1: GEN CODE C# SCRIPT
+        <button id="tabBtn1" class="menu-tab-btn active-tab" style="padding:10px 18px;border-radius:50px;border:1px solid #00d4ff;background:linear-gradient(135deg,#0066aa,#00d4ff);color:#000;font-weight:bold;font-size:12px;cursor:pointer;box-shadow:0 0 20px rgba(0,212,255,0.3);transition:0.3s;">
+            ⚡ MENU 1: GEN CODE C#
         </button>
-        <button id="tabBtn2" class="menu-tab-btn" style="padding:10px 20px;border-radius:50px;border:1px solid #1a3344;background:#09121d;color:#7899b5;font-weight:bold;font-size:13px;cursor:pointer;transition:0.3s;">
-            🧊 MENU 2: TẠO SKIN BOM KEO TỪ ẢNH
+        <button id="tabBtn2" class="menu-tab-btn" style="padding:10px 18px;border-radius:50px;border:1px solid #1a3344;background:#09121d;color:#7899b5;font-weight:bold;font-size:12px;cursor:pointer;transition:0.3s;">
+            🧊 MENU 2: SKIN BOM KEO TỪ ẢNH
+        </button>
+        <button id="tabBtn3" class="menu-tab-btn" style="padding:10px 18px;border-radius:50px;border:1px solid #2ed573;background:#09121d;color:#2ed573;font-weight:bold;font-size:12px;cursor:pointer;transition:0.3s;">
+            🎯 MENU 3: TÍNH ĐỘ NHẠY (FREE 🎁)
+        </button>
+        <button id="tabBtn4" class="menu-tab-btn" style="padding:10px 18px;border-radius:50px;border:1px solid #1a3344;background:#09121d;color:#7899b5;font-weight:bold;font-size:12px;cursor:pointer;transition:0.3s;">
+            🛡️ MENU 4: CONFIG FIX LAG
         </button>
     </div>
 
@@ -91,7 +97,6 @@
                 Chỉ cần tải ảnh bất kỳ lên, hệ thống sẽ tự động chuyển hóa thành Package Skin Bom Keo cho Game
             </p>
 
-            <!-- Dropzone / Image Upload -->
             <div style="border:2px dashed #00d4ff;border-radius:14px;padding:25px 15px;text-align:center;background:#050a14;cursor:pointer;margin-bottom:18px;transition:0.3s;" id="uploadDropzone">
                 <input type="file" id="skinImageFile" accept="image/*" style="display:none;">
                 <div id="uploadPlaceholder">
@@ -106,7 +111,6 @@
                 </div>
             </div>
 
-            <!-- Options for Menu 2 -->
             <div class="row" style="margin-bottom:10px;">
                 <label style="min-width:120px;">📁 Mã OBB Bom Keo:</label>
                 <input type="text" id="obbSkinKey" placeholder="VD: optionalab_weapon_054..." value="optionalab_weapon_054.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D" style="flex:1;background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:8px 12px;border-radius:6px;font-family:monospace;font-size:12px;">
@@ -120,13 +124,99 @@
                 </select>
             </div>
 
-            <!-- Action Button Menu 2 -->
             <div style="text-align:center;">
                 <button id="btnBuildSkinFromImage" class="btn" style="width:100%;padding:14px;background:linear-gradient(135deg,#0088cc,#00d4ff);border:none;border-radius:10px;color:#000;font-size:15px;font-weight:bold;cursor:pointer;box-shadow:0 0 30px rgba(0,212,255,0.4);transition:0.3s;">
                     🚀 CHUYỂN ẢNH THÀNH SKIN BOM KEO & TẢI VỀ
                 </button>
             </div>
         </div>
+    </div>
+
+    <!-- ===== MENU 3 CONTENT: TÍNH ĐỘ NHẠY & DPI PRO ===== -->
+    <div id="menuContent3" style="display:none;">
+        <div class="panel" style="border:1px solid #2ed573;box-shadow:0 0 25px rgba(46,213,115,0.15);">
+            <div style="text-align:center;margin-bottom:8px;">
+                <span style="background:rgba(46,213,115,0.15);color:#2ed573;border:1px solid #2ed573;padding:3px 12px;border-radius:50px;font-size:11px;font-weight:800;letter-spacing:0.5px;">
+                    🎁 TÍNH NĂNG HOÀN TOÀN MIỄN PHÍ (KHÔNG CẦN KEY)
+                </span>
+            </div>
+            <h2 style="color:#2ed573;font-size:16px;margin-bottom:12px;text-align:center;font-weight:800;">
+                🎯 MENU 3: BỘ TÍNH ĐỘ NHẠY CHUẨN VIP (FREE FIRE / MOBILE)
+            </h2>
+            <p style="color:#7899b5;font-size:12px;text-align:center;margin-bottom:16px;">
+                Tính toán độ nhạy & DPI tối ưu chuẩn từng dòng máy cho cảm giác kéo tâm bám đầu cực nhạy!
+            </p>
+
+            <div class="row" style="margin-bottom:12px;">
+                <label style="min-width:130px;">📱 Dòng Máy / Hãng:</label>
+                <select id="sensiDevice" style="flex:1;background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:8px;border-radius:6px;font-weight:bold;outline:none;">
+                    <option value="iphone" selected>🍏 iPhone / iPad (iOS Mượt)</option>
+                    <option value="samsung">📱 Samsung Galaxy (Android Exynos/Snapdragon)</option>
+                    <option value="xiaomi">⚡ Xiaomi / POCO / Redmi</option>
+                    <option value="oppo">✨ OPPO / Realme / Vivo</option>
+                    <option value="gaming">🎮 Gaming Phone (ROG / RedMagic / BlackShark)</option>
+                </select>
+            </div>
+
+            <div class="row" style="margin-bottom:12px;">
+                <label style="min-width:130px;">🔥 Lối Chơi Kéo Tâm:</label>
+                <select id="sensiStyle" style="flex:1;background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:8px;border-radius:6px;font-weight:bold;outline:none;">
+                    <option value="fast" selected>⚡ Kéo Nhanh Vút Tâm (Auto Headshot)</option>
+                    <option value="steady">⚓ Kéo Đầm Đêm Chắc (Lock Head Đầm)</option>
+                    <option value="balanced">⚖️ Cân Bằng Cận Chiến & Tầm Xa</option>
+                </select>
+            </div>
+
+            <div style="text-align:center;margin-top:15px;margin-bottom:15px;">
+                <button id="btnCalcSensi" class="btn" style="width:100%;padding:12px;background:linear-gradient(135deg,#0088cc,#00d4ff);border:none;border-radius:8px;color:#000;font-size:14px;font-weight:bold;cursor:pointer;">
+                    🎯 TÍNH ĐỘ NHẠY VIP NGAY
+                </button>
+            </div>
+
+            <div id="sensiResultBox" style="display:none;background:#050a14;border:1px solid #1a3344;border-radius:10px;padding:15px;margin-top:10px;">
+                <h3 style="color:#2ed573;font-size:14px;margin-bottom:10px;text-align:center;">
+                    ✅ BẢNG ĐỘ NHẠY & DPI ĐƯỢC TỐI ƯU CHO MÁY BẠN
+                </h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;" id="sensiGridDetails"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MENU 4 CONTENT: TẠO CONFIG FIX LAG ===== -->
+    <div id="menuContent4" style="display:none;">
+        <div class="panel" style="border:1px solid #00d4ff;box-shadow:0 0 25px rgba(0,212,255,0.15);">
+            <h2 style="color:#00d4ff;font-size:16px;margin-bottom:12px;text-align:center;font-weight:800;">
+                🛡️ MENU 4: TẠO FILE CONFIG FIX LAG & BOOST FPS
+            </h2>
+            <p style="color:#7899b5;font-size:12px;text-align:center;margin-bottom:16px;">
+                Tạo gói Config tùy chỉnh để dán vào game giúp giảm lag, hạ nhiệt CPU & ổn định 90-120 FPS
+            </p>
+
+            <div class="row" style="margin-bottom:12px;">
+                <label style="min-width:140px;">⚡ Gói Tối Ưu Hóa:</label>
+                <select id="configProfile" style="flex:1;background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:8px;border-radius:6px;font-weight:bold;outline:none;">
+                    <option value="max_fps" selected>🚀 Max FPS Ultra Smooth (Mượt 90-120 FPS, Tắt Bóng/Rác)</option>
+                    <option value="cool_cpu">❄️ Fix Lag & Mát Máy (Giảm Nhiệt CPU, Tiết Kiệm Pin)</option>
+                    <option value="ping_fix">🌐 Tối Ưu Mạng & Giảm Ping (Tăng Tốc TCP, Chong Delay)</option>
+                </select>
+            </div>
+
+            <div class="row" style="margin-bottom:18px;">
+                <label style="min-width:140px;">📄 Định Dạng File:</label>
+                <select id="configFormat" style="flex:1;background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:8px;border-radius:6px;font-weight:bold;outline:none;">
+                    <option value="json" selected>Tệp Config (.json)</option>
+                    <option value="txt">Tệp Văn Bản (.txt)</option>
+                </select>
+            </div>
+
+            <div style="text-align:center;">
+                <button id="btnGenerateConfig" class="btn" style="width:100%;padding:13px;background:linear-gradient(135deg,#0088cc,#00d4ff);border:none;border-radius:8px;color:#000;font-size:14px;font-weight:bold;cursor:pointer;">
+                    🚀 CHẾ TẠO CONFIG FIX LAG & TẢI VỀ
+                </button>
+            </div>
+        </div>
+    </div>
+
     </div>
 
     <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
