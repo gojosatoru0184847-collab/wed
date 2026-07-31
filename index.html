@@ -87,9 +87,10 @@
                 <input type="text" id="classPrefix" value="Aim" placeholder="VD: Aim hoặc optionalab_weapon_054..." style="flex:1;max-width:240px;">
             </div>
             <div class="row" style="margin-top:8px;">
-                <label>⚙️ Đuôi File:</label>
+                <label>⚙️ Đuôi File / Ngôn Ngữ:</label>
                 <select id="fileExt" style="background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:6px 12px;border-radius:6px;font-weight:bold;outline:none;">
                     <option value="none" selected>Mã Gốc OBB (Không đuôi file)</option>
+                    <option value=".cpp">⚡ C++ Native Engine (.cpp / .h)</option>
                     <option value=".cs">Chuẩn C# (.cs)</option>
                     <option value=".txt">Văn bản (.txt)</option>
                 </select>
@@ -129,22 +130,45 @@
                 </select>
             </div>
 
-            <div class="row" style="margin-bottom:10px;">
-                <label style="min-width:120px;">🧊 Chọn Loại Bom Keo:</label>
-                <select id="obbSkinKey" style="flex:1;background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:8px 12px;border-radius:6px;font-weight:bold;outline:none;font-size:12px;">
-                    <option value="optionalab_weapon_054.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D" selected>🧊 Bom Keo Mặc Định (Keo Trắng Standard)</option>
-                    <option value="optionalab_weapon_055.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D">🔥 Skin Keo Long Thần / Quỷ Vương VIP</option>
-                    <option value="optionalab_weapon_056.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D">⚡ Skin Keo Rồng Băng / Thép Sắt</option>
-                    <option value="optionalab_weapon_057.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D">🌸 Skin Keo Anime SAKURA VIP</option>
-                    <option value="optionalab_weapon_058.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D">⚔️ Skin Keo Quỷ Kiếm / Đao Quang</option>
-                    <option value="optionalab_weapon_059.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D">🎆 Skin Keo Sinh Nhật / Festival Ultra</option>
-                    <option value="optionalab_weapon_060.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D">🎃 Skin Keo Halloween / Quỷ Đầu Lâu</option>
-                    <option value="optionalab_weapon_061.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D">💚 Skin Keo Lá Cần / Toxic Green</option>
-                    <option value="optionalab_weapon_062.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D">💎 Skin Keo Kim Cương / Diamond Crystal</option>
-                    <option value="optionalab_weapon_063.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D">👑 Skin Keo Tử Chiến / Clash Squad PRO</option>
-                    <option value="optionalab_weapon_invisible.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D">👻 Bom Keo Tàng Hình / Full Invisible</option>
-                    <option value="custom">✏️ Nhập Mã OBB Tùy Chỉnh Khác...</option>
-                </select>
+            <div style="background:#050a14;border:1px solid #1a3344;border-radius:10px;padding:14px;margin-bottom:14px;">
+                <label style="color:#00d4ff;font-size:12px;font-weight:bold;display:block;margin-bottom:8px;">
+                    📦 CHỌN NGUỒN FILE BOM KEO GỐC (TEMPLATE OBB):
+                </label>
+                <div style="display:flex;gap:15px;margin-bottom:10px;flex-wrap:wrap;">
+                    <label style="cursor:pointer;color:#00d4ff;font-size:12px;font-weight:bold;display:flex;align-items:center;gap:6px;">
+                        <input type="radio" name="obbSourceType" value="preset" checked id="obbSourcePreset">
+                        <span>🧊 Tự chọn file Bom Keo có sẵn (New Folder)</span>
+                    </label>
+                    <label style="cursor:pointer;color:#ff9f43;font-size:12px;font-weight:bold;display:flex;align-items:center;gap:6px;">
+                        <input type="radio" name="obbSourceType" value="upload" id="obbSourceUpload">
+                        <span>📤 Tải file OBB Bom Keo từ máy bạn lên</span>
+                    </label>
+                </div>
+
+                <!-- PRESET DROPDOWN -->
+                <div id="presetObbBox" class="row" style="margin-bottom:5px;">
+                    <select id="obbSkinKey" style="flex:1;background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:8px 12px;border-radius:6px;font-weight:bold;outline:none;font-size:12px;">
+                        <option value="optionalab_weapon_054.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D" selected>🧊 Bom Keo Mặc Định (Keo Trắng Standard 054)</option>
+                        <option value="optionalab_weapon_021.w4tVo2QAcP7ONFCezZ9AoIehHUU~3D">🔥 Skin Keo Quỷ Vương / Long Thần (Keo 021)</option>
+                        <option value="optionalab_weapon_047.4nINsQDGwFMaQ4jjtQxViXF1l7Q~3D">⚡ Skin Keo Rồng Băng / Thép Sắt (Keo 047)</option>
+                        <option value="optionalab_weapon_058.lFsWlMele5d4X5aw6RBLchSdjgo~3D">⚔️ Skin Keo Quỷ Kiếm / Đao Quang (Keo 058)</option>
+                        <option value="optionalab_weapon_068.taWKWMEe462YVhaYmP6~2Fq07NIV8~3D">🎆 Skin Keo Sinh Nhật / Festival Ultra (Keo 068)</option>
+                        <option value="optionalab_weapon_073.B3F0ZNhU2uyPOcEPpKvwrL8~2Bq0Q~3D">🎃 Skin Keo Halloween / Quỷ Đầu Lâu (Keo 073)</option>
+                        <option value="optionalab_weapon_077.IXLLEIj5YZM22MEYnmk8WomuExE~3D">💎 Skin Keo Kim Cương / Clash Squad PRO (Keo 077)</option>
+                        <option value="optionalab_340.klHHyHdAr5baTMVL5C3iVPsLtP0~3D">📦 File Asset Bom Keo 340 (optionalab_340)</option>
+                        <option value="optionalclothres_commonab_texture_0.zQQx1~2FQX3OBtLv6~2F~2BGOeBFvolEI~3D">🎨 Texture Asset Common 0 (optionalclothres_0)</option>
+                        <option value="custom">✏️ Nhập Mã OBB Tùy Chỉnh Khác...</option>
+                    </select>
+                </div>
+
+                <!-- UPLOAD CUSTOM OBB FILE -->
+                <div id="uploadObbBox" style="display:none;border:1px dashed #ff9f43;border-radius:8px;padding:12px;text-align:center;background:#080c14;margin-top:6px;">
+                    <input type="file" id="customObbFileInput" style="display:none;">
+                    <button type="button" id="btnChooseObbFile" style="background:#ff9f43;color:#000;border:none;padding:8px 18px;border-radius:6px;font-weight:bold;font-size:12px;cursor:pointer;">
+                        📁 TẢI FILE BOM KEO GỐC TỪ MÁY BẠN NẠP VÀO
+                    </button>
+                    <div id="customObbFileInfo" style="color:#2ed573;font-size:12px;font-weight:bold;margin-top:8px;display:none;"></div>
+                </div>
             </div>
             <div class="row" id="customObbRow" style="display:none;margin-bottom:10px;">
                 <label style="min-width:120px;">🔑 Nhập Mã OBB Custom:</label>
@@ -213,21 +237,16 @@
                 </span>
             </div>
             <h2 style="color:#2ed573;font-size:16px;margin-bottom:12px;text-align:center;font-weight:800;">
-                🎯 MENU 3: BỘ TÍNH ĐỘ NHẠY CHUẨN VIP (FREE FIRE / MOBILE)
+                🎯 MENU 3: BỘ TÍNH ĐỘ NHẠY CHUẨN VIP 200 (FREE FIRE OB45+)
             </h2>
             <p style="color:#7899b5;font-size:12px;text-align:center;margin-bottom:16px;">
-                Tính toán độ nhạy & DPI tối ưu chuẩn từng dòng máy cho cảm giác kéo tâm bám đầu cực nhạy!
+                Tính toán độ nhạy (Thang điểm 0 - 200) & DPI tối ưu chuẩn từng dòng máy cho cảm giác kéo tâm bám đầu cực nhạy!
             </p>
 
             <div class="row" style="margin-bottom:12px;">
-                <label style="min-width:130px;">📱 Dòng Máy / Hãng:</label>
-                <select id="sensiDevice" style="flex:1;background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:8px;border-radius:6px;font-weight:bold;outline:none;">
-                    <option value="iphone" selected>🍏 iPhone / iPad (iOS Mượt)</option>
-                    <option value="samsung">📱 Samsung Galaxy (Android Exynos/Snapdragon)</option>
-                    <option value="xiaomi">⚡ Xiaomi / POCO / Redmi</option>
-                    <option value="oppo">✨ OPPO / Realme / Vivo</option>
-                    <option value="gaming">🎮 Gaming Phone (ROG / RedMagic / BlackShark)</option>
-                </select>
+                <label style="min-width:130px;">📱 Nhập Tên Điện Thoại:</label>
+                <input type="text" id="sensiDeviceInput" placeholder="VD: iPhone 13 Pro Max, Redmi Note 12, Samsung A54, ROG Phone..." 
+                       style="flex:1;background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:8px 12px;border-radius:6px;font-weight:bold;outline:none;font-size:12px;">
             </div>
 
             <div class="row" style="margin-bottom:12px;">
