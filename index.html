@@ -28,10 +28,24 @@
         </div>
     </div>
 
+    <!-- ===== MENU CATEGORY DROPDOWN HEADER (DANH MỤC) ===== -->
+    <div style="display:flex;justify-content:center;align-items:center;margin-bottom:16px;">
+        <div style="position:relative;display:inline-block;">
+            <button id="categoryMenuBtn" style="background:linear-gradient(135deg, #1880ed, #00d4ff);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-weight:bold;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;gap:10px;box-shadow:0 4px 15px rgba(0,212,255,0.4);transition:all 0.3s ease;">
+                <span style="font-size:18px;">☰</span>
+                <span>Danh mục Chức Năng</span>
+                <span style="font-size:10px;margin-left:4px;">▼</span>
+            </button>
+        </div>
+    </div>
+
     <!-- ===== MENU TAB NAVIGATION ===== -->
-    <div style="display:flex;justify-content:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+    <div id="categoryMenuDropdown" style="display:flex;justify-content:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;transition:all 0.3s ease;">
         <button id="tabBtn1" class="menu-tab-btn active-tab" style="padding:10px 18px;border-radius:50px;border:1px solid #00d4ff;background:linear-gradient(135deg,#0066aa,#00d4ff);color:#000;font-weight:bold;font-size:12px;cursor:pointer;box-shadow:0 0 20px rgba(0,212,255,0.3);transition:0.3s;">
-            ⚡ MENU 1: GEN CODE C#
+            🔷 MENU 1: GEN CODE C# (UNITY)
+        </button>
+        <button id="tabBtn5" class="menu-tab-btn" style="padding:10px 18px;border-radius:50px;border:1px solid #ff4757;background:#09121d;color:#ff4757;font-weight:bold;font-size:12px;cursor:pointer;transition:0.3s;">
+            ⚡ MENU 5: GEN CODE C++ (NATIVE HOOK)
         </button>
         <button id="tabBtn2" class="menu-tab-btn" style="padding:10px 18px;border-radius:50px;border:1px solid #1a3344;background:#09121d;color:#7899b5;font-weight:bold;font-size:12px;cursor:pointer;transition:0.3s;">
             🧊 MENU 2: SKIN BOM KEO TỪ ẢNH
@@ -44,17 +58,18 @@
         </button>
     </div>
 
-    <!-- ===== MENU 1 CONTENT ===== -->
+    <!-- ===== MENU 1 CONTENT: GEN CODE C# (UNITY) ===== -->
     <div id="menuContent1">
-        <div class="panel">
+        <div class="panel" style="border:1px solid #00d4ff;">
+            <h3 style="color:#00d4ff;margin-bottom:10px;font-size:14px;">🔷 HỆ THỐNG MÃ NGUỒN C# (UNITY ENGINE MONOBEHAVIOUR)</h3>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-                <h2 style="margin:0;">🧩 CHỌN CHỨC NĂNG</h2>
+                <h2 style="margin:0;">🧩 CHỌN CHỨC NĂNG C#</h2>
                 <div style="display:flex;gap:6px;">
                     <button id="btnSelectAllFuncs" style="background:#0066aa;color:#fff;border:1px solid #00d4ff;padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:bold;">⚡ Chọn Tất Cả</button>
                     <button id="btnDeselectAllFuncs" style="background:#1a2a40;color:#7899b5;border:1px solid #1a3344;padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:bold;">🗑️ Bỏ Chọn</button>
                 </div>
             </div>
-            <input type="text" id="funcSearchInput" placeholder="🔍 Tìm nhanh chức năng (VD: Aim, Bám đầu, Lock, FPS...)" 
+            <input type="text" id="funcSearchInput" placeholder="🔍 Tìm nhanh chức năng C# (VD: Aim, Bám đầu, Lock, FPS...)" 
                    style="width:100%;padding:8px 12px;background:#050811;border:1px solid #1a3344;color:#00d4ff;border-radius:6px;margin-bottom:12px;font-size:12px;outline:none;">
             <div class="btn-grid" id="funcGrid">
                 <button class="btn-func" data-func="BamDau">🎯 Bám Đầu</button>
@@ -87,12 +102,42 @@
                 <input type="text" id="classPrefix" value="Aim" placeholder="VD: Aim hoặc optionalab_weapon_054..." style="flex:1;max-width:240px;">
             </div>
             <div class="row" style="margin-top:8px;">
-                <label>⚙️ Đuôi File / Ngôn Ngữ:</label>
+                <label>⚙️ Định Dạng Ngôn Ngữ:</label>
                 <select id="fileExt" style="background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:6px 12px;border-radius:6px;font-weight:bold;outline:none;">
-                    <option value="none" selected>Mã Gốc OBB (Không đuôi file)</option>
-                    <option value=".cpp">⚡ C++ Native Engine (.cpp / .h)</option>
-                    <option value=".cs">Chuẩn C# (.cs)</option>
+                    <option value=".cs" selected>Standard C# Script (.cs)</option>
+                    <option value="none">Mã Gốc OBB (Không đuôi file)</option>
                     <option value=".txt">Văn bản (.txt)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MENU 5 CONTENT: GEN CODE C++ NATIVE ENGINE (IL2CPP HOOK) ===== -->
+    <div id="menuContent5" style="display:none;">
+        <div class="panel" style="border:2px solid #ff4757;box-shadow:0 0 30px rgba(255,71,87,0.2);">
+            <h2 style="color:#ff4757;font-size:16px;margin-bottom:12px;text-align:center;font-weight:800;">
+                ⚡ MENU 5: TẠO MÃ NGUỒN C++ NATIVE ENGINE (HOOK MEMORY & LIBIL2CPP.SO)
+            </h2>
+            <p style="color:#7899b5;font-size:12px;text-align:center;margin-bottom:18px;">
+                Tạo Code C++ Native (.cpp / .hpp) Can Thiệp Trực Tiếp Vào Offset Bộ Nhớ Game Free Fire (Bypass Anti-Cheat & Siêu Tốc Độ)
+            </p>
+            <div style="background:#0a0514;border:1px solid #ff4757;border-radius:8px;padding:12px;margin-bottom:15px;color:#ff9f43;font-size:12px;">
+                🚀 <strong>Tính Năng C++ Native:</strong> Tự động khởi tạo <code>Vector3_Native</code>, Struct Hook Offsets bộ nhớ <code>libil2cpp.so</code>, Can thiệp Shader Render Mode <code>_Mode</code> trực tiếp từ C++.
+            </div>
+
+            <div class="row" style="margin-bottom:10px;">
+                <label style="min-width:140px;">📦 Số Lượng File C++:</label>
+                <input type="number" id="cppFileCount" value="100" min="1" max="500" style="background:#050811;color:#ff4757;border:1px solid #ff4757;padding:6px 12px;border-radius:6px;font-weight:bold;">
+            </div>
+            <div class="row" style="margin-bottom:10px;">
+                <label style="min-width:140px;">📁 Tên Prefix Class C++:</label>
+                <input type="text" id="cppClassPrefix" value="NativeEngine" style="flex:1;background:#050811;color:#ff4757;border:1px solid #ff4757;padding:6px 12px;border-radius:6px;font-family:monospace;font-weight:bold;">
+            </div>
+            <div class="row" style="margin-bottom:10px;">
+                <label style="min-width:140px;">⚡ Định Dạng Output C++:</label>
+                <select id="cppFileExt" style="flex:1;background:#050811;color:#ff4757;border:1px solid #ff4757;padding:6px 12px;border-radius:6px;font-weight:bold;outline:none;">
+                    <option value=".cpp" selected>C++ Source File (.cpp)</option>
+                    <option value=".hpp">C++ Header File (.hpp)</option>
                 </select>
             </div>
         </div>
@@ -147,16 +192,22 @@
 
                 <!-- PRESET DROPDOWN -->
                 <div id="presetObbBox" class="row" style="margin-bottom:5px;">
-                    <select id="obbSkinKey" style="flex:1;background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:8px 12px;border-radius:6px;font-weight:bold;outline:none;font-size:12px;">
-                        <option value="optionalab_weapon_054.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D" selected>🧊 Bom Keo Mặc Định (Keo Trắng Standard 054)</option>
-                        <option value="optionalab_weapon_021.w4tVo2QAcP7ONFCezZ9AoIehHUU~3D">🔥 Skin Keo Quỷ Vương / Long Thần (Keo 021)</option>
-                        <option value="optionalab_weapon_047.4nINsQDGwFMaQ4jjtQxViXF1l7Q~3D">⚡ Skin Keo Rồng Băng / Thép Sắt (Keo 047)</option>
-                        <option value="optionalab_weapon_058.lFsWlMele5d4X5aw6RBLchSdjgo~3D">⚔️ Skin Keo Quỷ Kiếm / Đao Quang (Keo 058)</option>
-                        <option value="optionalab_weapon_068.taWKWMEe462YVhaYmP6~2Fq07NIV8~3D">🎆 Skin Keo Sinh Nhật / Festival Ultra (Keo 068)</option>
-                        <option value="optionalab_weapon_073.B3F0ZNhU2uyPOcEPpKvwrL8~2Bq0Q~3D">🎃 Skin Keo Halloween / Quỷ Đầu Lâu (Keo 073)</option>
-                        <option value="optionalab_weapon_077.IXLLEIj5YZM22MEYnmk8WomuExE~3D">💎 Skin Keo Kim Cương / Clash Squad PRO (Keo 077)</option>
-                        <option value="optionalab_340.klHHyHdAr5baTMVL5C3iVPsLtP0~3D">📦 File Asset Bom Keo 340 (optionalab_340)</option>
-                        <option value="optionalclothres_commonab_texture_0.zQQx1~2FQX3OBtLv6~2F~2BGOeBFvolEI~3D">🎨 Texture Asset Common 0 (optionalclothres_0)</option>
+                    <select id="obbSkinKey" style="flex:1;background:#050811;color:#00d4ff;border:1px solid #1a3344;padding:8px 12px;border-radius:6px;font-weight:bold;outline:none;font-size:12px;font-family:monospace;">
+                        <option value="optionalab_weapon_054.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D" selected>optionalab_weapon_054.PZEaSpjxrnFlozy~2Bs9hos3qj6xo~3D (Keo Standard 054)</option>
+                        <option value="optionalab_weapon_021.w4tVo2QAcP7ONFCezZ9AoIehHUU~3D">optionalab_weapon_021.w4tVo2QAcP7ONFCezZ9AoIehHUU~3D</option>
+                        <option value="optionalab_weapon_047.4nINsQDGwFMaQ4jjtQxViXF1l7Q~3D">optionalab_weapon_047.4nINsQDGwFMaQ4jjtQxViXF1l7Q~3D</option>
+                        <option value="optionalab_weapon_058.lFsWlMele5d4X5aw6RBLchSdjgo~3D">optionalab_weapon_058.lFsWlMele5d4X5aw6RBLchSdjgo~3D</option>
+                        <option value="optionalab_weapon_068.taWKWMEe462YVhaYmP6~2Fq07NIV8~3D">optionalab_weapon_068.taWKWMEe462YVhaYmP6~2Fq07NIV8~3D</option>
+                        <option value="optionalab_weapon_073.B3F0ZNhU2uyPOcEPpKvwrL8~2Bq0Q~3D">optionalab_weapon_073.B3F0ZNhU2uyPOcEPpKvwrL8~2Bq0Q~3D</option>
+                        <option value="optionalab_weapon_077.IXLLEIj5YZM22MEYnmk8WomuExE~3D">optionalab_weapon_077.IXLLEIj5YZM22MEYnmk8WomuExE~3D</option>
+                        <option value="optionalab_340.klHHyHdAr5baTMVL5C3iVPsLtP0~3D">optionalab_340.klHHyHdAr5baTMVL5C3iVPsLtP0~3D</option>
+                        <option value="optionalclothres_commonab_texture_0.zQQx1~2FQX3OBtLv6~2F~2BGOeBFvolEI~3D">optionalclothres_commonab_texture_0.zQQx1~2FQX3OBtLv6~2F~2BGOeBFvolEI~3D</option>
+                        <option value="optionalclothres_commonab_texture_46.973aNir0FfHFZiwaATs5Fl~2B0Bwg~3D">optionalclothres_commonab_texture_46.973aNir0FfHFZiwaATs5Fl~2B0Bwg~3D</option>
+                        <option value="optionalclothres_commonab_texture_47.DazdN41PAzCdcuAK4boSnQaFp5Q~3D">optionalclothres_commonab_texture_47.DazdN41PAzCdcuAK4boSnQaFp5Q~3D</option>
+                        <option value="optionalclothres_commonab_texture_48.cpFGQ3deC~2Fs7L6TgFNaCucWeIxc~3D">optionalclothres_commonab_texture_48.cpFGQ3deC~2Fs7L6TgFNaCucWeIxc~3D</option>
+                        <option value="optionalclothres_commonab_texture_49.QvpWCQ4gxviCYULbQe8W9KBgeB4~3D">optionalclothres_commonab_texture_49.QvpWCQ4gxviCYULbQe8W9KBgeB4~3D</option>
+                        <option value="optionalclothres_commonab_texture_51.~2B896M0y9vNQEKCb3KFASp6N3czs~3D">optionalclothres_commonab_texture_51.~2B896M0y9vNQEKCb3KFASp6N3czs~3D</option>
+                        <option value="shaders.Wl7fEAZt8J45i5cEQH1htckkHtQ~3D">shaders.Wl7fEAZt8J45i5cEQH1htckkHtQ~3D</option>
                         <option value="custom">✏️ Nhập Mã OBB Tùy Chỉnh Khác...</option>
                     </select>
                 </div>
@@ -168,6 +219,11 @@
                         📁 TẢI FILE BOM KEO GỐC TỪ MÁY BẠN NẠP VÀO
                     </button>
                     <div id="customObbFileInfo" style="color:#2ed573;font-size:12px;font-weight:bold;margin-top:8px;display:none;"></div>
+                    
+                    <button type="button" id="btnVerifyObbServer" style="display:none;margin:10px auto 0 auto;background:linear-gradient(135deg, #00d4ff, #0055ff);color:#fff;border:none;padding:8px 16px;border-radius:6px;font-weight:bold;font-size:12px;cursor:pointer;box-shadow:0 0 15px rgba(0,212,255,0.4);">
+                        🛡️ GỬI FILE OBB LÊN SERVER XÁC NHẬN KEY & CHECK CODE
+                    </button>
+                    <div id="serverVerificationResult" style="display:none;margin-top:10px;padding:10px;background:#050811;border:1px solid #00d4ff;border-radius:6px;text-align:left;font-size:11px;"></div>
                 </div>
             </div>
             <div class="row" id="customObbRow" style="display:none;margin-bottom:10px;">
