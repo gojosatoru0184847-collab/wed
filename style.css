@@ -133,6 +133,28 @@ h1 .sub {
   border-radius: 50%;
 }
 
+.coin-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #ff9f43, #ff5252);
+  color: #fff;
+  padding: 8px 22px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 0 25px rgba(255, 159, 67, 0.5);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.coin-card-badge:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 0 40px rgba(255, 159, 67, 0.8);
+}
+
 .server-badge {
   display: inline-flex;
   align-items: center;

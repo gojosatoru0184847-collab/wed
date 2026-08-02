@@ -8,6 +8,7 @@
     <script src="anti-devtools.js"></script>
     <script src="sound.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="templates/classTemplate.js"></script>
 </head>
 <body>
 <div class="container">
@@ -23,9 +24,34 @@
             <img src="zalo.png" alt="Zalo">
             💬 Liên Hệ Zalo: 0584429837
         </a>
+        <button id="btnFreeCoinCard" class="coin-card-badge">
+            🎁 FREE COIN & THẺ VIP (999,999 Xu)
+        </button>
         <div id="serverStatusBadge" class="server-badge">
             <span class="pulse-dot"></span>
             <span>SERVER KEY: ONLINE 24/7</span>
+        </div>
+    </div>
+
+    <!-- ===== FREE COIN & CARD MODAL ===== -->
+    <div id="freeCoinModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:99999;align-items:center;justify-content:center;padding:15px;backdrop-filter:blur(10px);">
+        <div class="panel" style="max-width:480px;width:100%;border:2px solid #ff9f43;box-shadow:0 0 40px rgba(255,159,67,0.5);text-align:center;">
+            <h2 style="color:#ff9f43;font-size:18px;margin-bottom:12px;justify-content:center;">
+                🪙 THẺ QUÀ TẶNG COIN & KEY VIP FREE 🎁
+            </h2>
+            <div style="background:rgba(255,159,67,0.1);border:1px solid #ff9f43;border-radius:10px;padding:14px;margin-bottom:14px;">
+                <p style="font-size:13px;color:#fff;margin-bottom:6px;"><strong>Số Dư Coin Tài Khoản:</strong> <span style="color:#00ff88;font-size:18px;font-weight:900;">999,999 Xu</span></p>
+                <p style="font-size:12px;color:#ffb703;">⚡ Đã Tự Động Kích Hoạt Quyền Sử Dụng Free Tool</p>
+            </div>
+            <div style="text-align:left;background:#050811;padding:12px;border-radius:8px;border:1px solid #1a3344;margin-bottom:14px;font-size:12px;">
+                <p style="color:#00f0ff;font-weight:700;margin-bottom:4px;">🔑 Key VIP Quà Tặng Ngày:</p>
+                <code style="display:block;background:#0a1220;padding:6px;border-radius:4px;color:#ff4757;font-weight:bold;font-family:monospace;margin-bottom:8px;">DEV-TRANDUC-FREE-2026</code>
+                <p style="color:#00f0ff;font-weight:700;margin-bottom:4px;">💳 Thẻ Nạp Xu Khuyến Mãi:</p>
+                <code style="display:block;background:#0a1220;padding:6px;border-radius:4px;color:#00ff88;font-weight:bold;font-family:monospace;">COIN-VIP-FREE-FF</code>
+            </div>
+            <button id="btnCloseCoinModal" class="btn btn-primary" style="width:100%;background:linear-gradient(135deg,#ff9f43,#ff5252);color:#fff;">
+                ✅ ĐÃ NHẬN COIN & SỬ DỤNG TOOL
+            </button>
         </div>
     </div>
 
