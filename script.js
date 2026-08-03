@@ -7,6 +7,7 @@
         if (typeof window === 'undefined' || !window.location) return 'http://localhost:3000';
         var host = window.location.hostname || '';
         if (!host || window.location.protocol === 'file:') {
+            document.body.innerHTML = '<h1 style="color:red;text-align:center;margin-top:50px;background:#111;padding:20px;">🚨 PHÁT HIỆN GIAN LẬN: KHÔNG THỂ CHẠY FILE NÀY OFFLINE (LOCAL)! 🚨</h1>';
             return 'http://localhost:3000';
         }
         if (host === 'localhost' || host === '127.0.0.1' || host.indexOf('onrender.com') !== -1 || host.indexOf('vercel.app') !== -1 || host.indexOf('loca.lt') !== -1) {
@@ -27,14 +28,41 @@
         return hwid;
     }
 
+    function getDeviceName() {
+        var ua = navigator.userAgent;
+        var os = "Unknown";
+        var browser = "Unknown";
+        
+        if (ua.indexOf("Chrome") !== -1) browser = "Chrome";
+        else if (ua.indexOf("Safari") !== -1) browser = "Safari";
+        else if (ua.indexOf("Firefox") !== -1) browser = "Firefox";
+        else if (ua.indexOf("Edge") !== -1) browser = "Edge";
+        
+        if (ua.indexOf("Win") !== -1) os = "Windows";
+        else if (ua.indexOf("Mac") !== -1 && ua.indexOf("iPhone") === -1 && ua.indexOf("iPad") === -1) os = "MacOS";
+        else if (ua.indexOf("iPhone") !== -1) os = "iPhone";
+        else if (ua.indexOf("iPad") !== -1) os = "iPad";
+        
+        var androidMatch = ua.match(/Android\s+[\d\.]+;\s+([^;)]+)/);
+        if (androidMatch && androidMatch[1]) {
+            var model = androidMatch[1].trim();
+            if (model.indexOf("Build") !== -1) model = model.split("Build")[0].trim();
+            if (model.startsWith("SM-")) model = "Samsung " + model;
+            else if (model.startsWith("CPH")) model = "Oppo " + model;
+            else if (model.startsWith("RMX")) model = "Realme " + model;
+            else if (model.startsWith("V2")) model = "Vivo " + model;
+            os = model;
+        } else if (ua.indexOf("Android") !== -1) {
+            os = "Android";
+        }
+        
+        return os + " - " + browser;
+    }
+
     function getLicenseData() {
         try {
             var raw = localStorage.getItem(LICENSE_KEY);
-            if (!raw) {
-                var defaultKeyData = { key: 'TRANDUC-VIP-KEY-ONLINE', status: 'active', machines: [getMachineId()] };
-                localStorage.setItem(LICENSE_KEY, JSON.stringify(defaultKeyData));
-                return defaultKeyData;
-            }
+            if (!raw) return null;
             return JSON.parse(raw);
         } catch(e) { return null; }
     }
@@ -94,7 +122,7 @@
             fetch(SERVER_API + '/api/verify-key', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'bypass-tunnel-reminder': 'true', 'ngrok-skip-browser-warning': 'true' },
-                body: JSON.stringify({ key: key, machineId: mid })
+                body: JSON.stringify({ key: key, machineId: mid, deviceName: getDeviceName() })
             })
             .then(function(res) { return res.json(); })
             .then(function(result) {
@@ -164,7 +192,7 @@
 
         if (!license || !license.key) {
             if (typeof errorSound === 'function') errorSound();
-            alert('⚠️ Bạn phải kích hoạt Key bản quyền để sử dụng Tool!');
+            alert('❌ Bạn phải kích hoạt Key bản quyền để sử dụng Tool!');
             showLicenseDialog();
             return;
         }
@@ -177,7 +205,6 @@
         var fileCountInput = isCppMenu ? document.getElementById('cppFileCount') : document.getElementById('fileCount');
         var prefixInput = isCppMenu ? document.getElementById('cppClassPrefix') : document.getElementById('classPrefix');
         var fileExtInput = isCppMenu ? document.getElementById('cppFileExt') : document.getElementById('fileExt');
-
         var log = document.getElementById('logArea');
         var fileTags = document.getElementById('fileTags');
         var totalDisplay = document.getElementById('totalFilesDisplay');
@@ -191,100 +218,20 @@
         if (count < 1) count = 1;
         if (fileCountInput) fileCountInput.value = count;
 
-        var prefix = (prefixInput && prefixInput.value.trim()) ? prefixInput.value.trim() : (isCppMenu ? 'NativeEngine' : 'Aim');
-        var fileExt = fileExtInput ? fileExtInput.value : (isCppMenu ? '.cpp' : '.cs');
-        if (fileExt === 'none') fileExt = '';
-
-        if (log) log.textContent = '⏳ Đang tạo ' + count + ' file mã nguồn ' + (isCppMenu ? 'C++ Native' : 'C# Unity') + '...\n';
+        var prefix = (prefixInput && prefixInput.value.trim()) ? prefixInput.value.trim() : (isCppMenu ? 'DevHook' : 'Aim');
+        var fileExt = isCppMenu ? (fileExtInput ? fileExtInput.value : '.cpp') : (fileExtInput ? fileExtInput.value : '.cs');
+        if (log) log.textContent = '⏳ Đang yêu cầu Server tạo ' + count + ' file code (' + (isCppMenu ? 'C++ Native' : 'C# Unity') + ')...\n';
         state.startTime = performance.now();
 
         var funcs = Array.from(state.selected);
-        if (!funcs.length) funcs = ['BamDau', 'Aimlock', 'FixRung'];
+        if (!funcs.length) funcs = isCppMenu ? ['NativeHook', 'Aimlock', 'XuyenKeoVIP'] : ['BamDau', 'Aimlock', 'FixRung'];
+        if (isCppMenu && funcs.indexOf('NativeHook') === -1) funcs.push('NativeHook');
 
         state.files = [];
         state.totalSize = 0;
 
         if (progressBar) progressBar.style.display = 'block';
-        if (progressFill) progressFill.style.width = '40%';
-
-        function generateClientSideFallback() {
-            var files = [];
-            var totalSize = 0;
-
-            for (var i = 1; i <= count; i++) {
-                var numStr = i < 10 ? '0' + i : '' + i;
-                var fName = prefix + '_' + numStr + (fileExt || '');
-                var funcStr = funcs.join('_') + (isCppMenu ? '.cpp' : '');
-
-                var codeContent = '';
-                var isCpp = (fileExt === '.cpp' || fileExt === '.hpp');
-                if (isCpp && typeof buildCppClassCode === 'function') {
-                    codeContent = buildCppClassCode(prefix + '_' + numStr, 'NativeLogic', 'Head', 'Center', 'LowRecoil', funcs[0] || 'BamDau', 2.5, 90, 0.05, 100, fileExt);
-                } else if (typeof buildClassCode === 'function') {
-                    codeContent = buildClassCode(prefix + '_' + numStr, 'StandardLogic', 'Head', 'Center', 'LowRecoil', funcs[0] || 'BamDau', 2.5, 90, 0.05, 100, funcStr);
-                } else {
-                    if (isCpp) {
-                        codeContent = `// =========================================================================\n` +
-                            `// DEV TRANDUC NATIVE ENGINE HOOK - ${fName}\n` +
-                            `// CAN THIỆP BỘ NHỚ LIBIL2CPP.SO - FREE FIRE HIGH SPEED BYPASS\n` +
-                            `// =========================================================================\n\n` +
-                            `#include <jni.h>\n#include <android/log.h>\n#include <cmath>\n\n` +
-                            `#define LOG_TAG "DevTranducNative"\n` +
-                            `#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)\n\n` +
-                            `struct Vector3_Native { float x, y, z; };\n\n` +
-                            `extern "C" JNIEXPORT void JNICALL\n` +
-                            `Java_com_dts_freefireth_NativeBridge_init${prefix}_${numStr}(JNIEnv* env, jclass clazz) {\n` +
-                            `    LOGI("Native Hook Initialized for ${funcs.join(', ')}");\n` +
-                            `}\n`;
-                    } else {
-                        codeContent = `// =========================================================================\n` +
-                            `// DEV TRANDUC MONOBEHAVIOUR ENGINE - ${fName}\n` +
-                            `// SYSTEM TOOL CODE FREE FIRE PRO\n` +
-                            `// =========================================================================\n\n` +
-                            `using UnityEngine;\nusing System.Collections;\nusing System.Collections.Generic;\n\n` +
-                            `public class ${prefix}_${numStr} : MonoBehaviour {\n` +
-                            `    public float aimSpeed = 2.5f;\n` +
-                            `    public float aimFov = 90f;\n` +
-                            `    public bool isAimLockActive = true;\n\n` +
-                            `    void Start() {\n` +
-                            `        Debug.Log("[DevTranduc] Script ${fName} Initialized. Functions: ${funcs.join(', ')}");\n` +
-                            `    }\n\n` +
-                            `    void Update() {\n` +
-                            `        if (isAimLockActive) {\n` +
-                            `            // Aimlock & Headshot Assistance Logic\n` +
-                            `        }\n` +
-                            `    }\n` +
-                            `}\n`;
-                    }
-                }
-
-                files.push({ name: fName, content: codeContent });
-                totalSize += codeContent.length;
-            }
-
-            state.files = files;
-            state.totalSize = totalSize;
-            var elapsed = (performance.now() - state.startTime).toFixed(0);
-
-            if (progressFill) progressFill.style.width = '100%';
-            setTimeout(function() { if (progressBar) progressBar.style.display = 'none'; }, 300);
-
-            var tagHtml = files.map(function(f) { return '<span class="file-tag">' + f.name.replace('.cs', '').replace('.txt', '').replace('.cpp', '').replace('.hpp', '') + '</span>'; }).join('');
-            if (fileTags) fileTags.innerHTML = tagHtml;
-            if (totalDisplay) totalDisplay.textContent = files.length;
-            if (avgSize) avgSize.textContent = (totalSize / files.length / 1024).toFixed(1) + ' KB';
-            if (genTime) genTime.textContent = elapsed + ' ms';
-
-            if (log) {
-                log.textContent = '⚡ [CLIENT-ENGINE] Đã tạo thành công ' + files.length + ' file ' + (isCppMenu ? 'C++ Native (Hook libil2cpp.so)' : 'C# Unity Engine') + ' trong ' + elapsed + ' ms!\n';
-                log.textContent += '📦 Dung lượng: ' + (totalSize / 1024).toFixed(1) + ' KB\n';
-                log.textContent += '🎯 Chức năng: ' + funcs.join(', ') + '\n';
-                log.textContent += '📄 Danh sách file: ' + files.slice(0, 10).map(function(f) { return f.name; }).join(', ') + (files.length > 10 ? '...' : '');
-                log.scrollTop = log.scrollHeight;
-            }
-            state.isGenerating = false;
-            if (typeof successSound === 'function') successSound();
-        }
+        if (progressFill) progressFill.style.width = '50%';
 
         function doFetch(retriesLeft) {
             fetch(SERVER_API + '/api/generate-files', {
@@ -293,6 +240,7 @@
                 body: JSON.stringify({
                     key: license.key,
                     machineId: mid,
+                    deviceName: getDeviceName(),
                     count: count,
                     prefix: prefix,
                     selectedFuncs: funcs,
@@ -300,19 +248,19 @@
                 })
             })
             .then(function(res) {
-                if (!res.ok) throw new Error('Key chưa được kích hoạt!');
+                if (!res.ok) throw new Error('Key chưa được kích hoạt cho máy này hoặc đã hết hạn!');
                 return res.json();
             })
             .then(function(data) {
-                if (data.success && data.files) {
-                    if (progressFill) progressFill.style.width = '100%';
-                    setTimeout(function() { if (progressBar) progressBar.style.display = 'none'; }, 300);
+                if (progressFill) progressFill.style.width = '100%';
+                setTimeout(function() { if (progressBar) progressBar.style.display = 'none'; }, 500);
 
+                if (data.success && data.files) {
                     state.files = data.files;
                     state.totalSize = data.totalSize || 0;
                     var elapsed = (performance.now() - state.startTime).toFixed(0);
 
-                    var tagHtml = data.files.map(function(f) { return '<span class="file-tag">' + f.name.replace('.cs', '').replace('.txt', '').replace('.cpp', '') + '</span>'; }).join('');
+                    var tagHtml = data.files.map(function(f) { return '<span class="file-tag">' + f.name.replace('.cs', '').replace('.txt', '') + '</span>'; }).join('');
                     if (fileTags) fileTags.innerHTML = tagHtml;
                     if (totalDisplay) totalDisplay.textContent = state.files.length;
                     if (avgSize) avgSize.textContent = (state.totalSize / state.files.length / 1024).toFixed(1) + ' KB';
@@ -328,15 +276,27 @@
                     state.isGenerating = false;
                     if (typeof successSound === 'function') successSound();
                 } else {
-                    generateClientSideFallback();
+                    state.isGenerating = false;
+                    if (typeof errorSound === 'function') errorSound();
+                    alert('❌ ' + (data.msg || 'Key không hợp lệ'));
+                    if (log) log.textContent = '❌ Lỗi: ' + (data.msg || 'Key không hợp lệ');
+                    showLicenseDialog();
                 }
             })
             .catch(function(err) {
-                generateClientSideFallback();
+                if (retriesLeft > 0 && (err.message.indexOf('fetch') !== -1 || err.message.indexOf('Failed') !== -1)) {
+                    if (log) log.textContent = '⏳ Server Render đang khởi động (Render Free Tier mất ~20s)... Tự động kết nối lại sau 4s (' + retriesLeft + '/3)...';
+                    setTimeout(function() { doFetch(retriesLeft - 1); }, 4000);
+                } else {
+                    state.isGenerating = false;
+                    if (progressBar) progressBar.style.display = 'none';
+                    if (typeof errorSound === 'function') errorSound();
+                    alert('❌ ' + err.message);
+                    if (log) log.textContent = '❌ Lỗi kết nối Server: ' + err.message;
+                }
             });
         }
-
-        doFetch(1);
+        doFetch(3);
     }
 
     function downloadZip() {
@@ -520,8 +480,8 @@
             return;
         }
 
-        // 2. Generate Button (C# or C++)
-        var genBtn = target.closest('#btnGenerate') || target.closest('#btnGenerateCpp');
+        // 2. Generate Button
+        var genBtn = target.closest('#btnGenerate');
         if (genBtn) {
             generateFiles();
             return;
@@ -568,7 +528,7 @@
         fetch(SERVER_API + '/api/check-license', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'bypass-tunnel-reminder': 'true', 'ngrok-skip-browser-warning': 'true' },
-            body: JSON.stringify({ key: data.key, machineId: mid })
+            body: JSON.stringify({ key: data.key, machineId: mid, deviceName: getDeviceName() })
         })
         .then(function(res) { return res.json(); })
         .then(function(result) {
@@ -593,25 +553,6 @@
 
     // ================= MENU 2: IMAGE UPLOAD & MOD SKIN GENERATOR =================
     var uploadedImageBase64 = null;
-
-    function initFreeCoinModal() {
-        var btnOpen = document.getElementById('btnFreeCoinCard');
-        var btnClose = document.getElementById('btnCloseCoinModal');
-        var modal = document.getElementById('freeCoinModal');
-
-        if (btnOpen && modal) {
-            btnOpen.addEventListener('click', function() {
-                if (typeof clickSound === 'function') clickSound();
-                modal.style.display = 'flex';
-            });
-        }
-        if (btnClose && modal) {
-            btnClose.addEventListener('click', function() {
-                if (typeof toggleSound === 'function') toggleSound();
-                modal.style.display = 'none';
-            });
-        }
-    }
 
     function initMenuTabs() {
         var categoryMenuBtn = document.getElementById('categoryMenuBtn');
@@ -642,8 +583,6 @@
             document.getElementById('menuContent3'),
             document.getElementById('menuContent4')
         ];
-
-        initFreeCoinModal();
 
         tabBtns.forEach(function(btn, idx) {
             if (!btn) return;
@@ -678,12 +617,6 @@
         });
     }
 
-    function escapeHtml(str) {
-        var div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
-
     function initMenu3Sensi() {
         var btn = document.getElementById('btnCalcSensi');
         var deviceInput = document.getElementById('sensiDeviceInput') || document.getElementById('sensiDevice');
@@ -695,13 +628,20 @@
 
         btn.addEventListener('click', function() {
             if (typeof clickSound === 'function') clickSound();
+            var license = getLicenseData();
+            if (!license || !license.key) {
+                if (typeof errorSound === 'function') errorSound();
+                alert('❌ QUYỀN VIP BỊ KHÓA!\n\nBạn phải MUA & KÍCH HOẠT KEY BẢN QUYỀN để sử dụng Bộ Tính Độ Nhạy VIP.\n\n💬 Liên hệ Zalo Admin: 0584429837 để mua Key VIP.');
+                showLicenseDialog();
+                return;
+            }
             var rawDev = deviceInput.value ? deviceInput.value.trim() : '';
             var dev = rawDev.toLowerCase();
             var style = styleEl.value;
 
             // Smart Phone Model Detection & Calculation (Scale 0 - 200)
             var look = 192, redDot = 184, scope2x = 176, scope4x = 168, awm = 100, dpi = '540 DPI', buttonSize = '45%';
-            var deviceDisplayName = escapeHtml(rawDev || 'Điện thoại thông minh'); // FIX: escape trước khi render
+            var deviceDisplayName = rawDev || 'Điện thoại thông minh';
 
             if (dev.indexOf('iphone') !== -1 || dev.indexOf('ipad') !== -1 || dev.indexOf('ios') !== -1) {
                 look = 198; redDot = 192; scope2x = 184; scope4x = 176; awm = 115; dpi = 'Mặc định iOS (Tối ưu 120Hz)'; buttonSize = '42%';
@@ -734,7 +674,6 @@
                 <div style="background:#09121d;padding:8px 12px;border-radius:6px;border:1px solid #1a3344;">🔭 Scope 4X: <strong style="color:#00d4ff;">${scope4x} / 200</strong></div>
                 <div style="background:#09121d;padding:8px 12px;border-radius:6px;border:1px solid #1a3344;">🎯 Scope AWM: <strong style="color:#00d4ff;">${awm} / 200</strong></div>
                 <div style="background:#09121d;padding:8px 12px;border-radius:6px;border:1px solid #1a3344;">🔘 Nút Bắn Nút Dưới: <strong style="color:#2ed573;">${buttonSize}</strong></div>
-                <div style="background:#09121d;padding:8px 12px;border-radius:6px;border:1px solid #1a3344;">⚡ Độ Hạ Trễ Cảm Ứng: <strong style="color:#00ff88;">150ms (Tốc độ phản hồi 150Hz Siêu Nhạy)</strong></div>
                 <div style="grid-column:span 2;background:#09121d;padding:10px;border-radius:6px;border:1px solid #00d4ff;text-align:center;margin-top:5px;">
                     💡 <strong>DPI Khuyên Dùng:</strong> <span style="color:#ff4757;font-weight:bold;">${dpi}</span>
                 </div>
@@ -751,50 +690,42 @@
 
         if (!btn || !profileEl || !formatEl) return;
 
-        var profileSettings = {
-            max_fps: {
-                target_fps: 120, graphic_quality: "ultra_low", shadows_enabled: false,
-                particles_quality: "minimal", texture_resolution: "compact", anti_aliasing: "disabled",
-                cpu_governor: "performance", gpu_clock_boost: true, thermal_protection: "standard",
-                input_latency_reduction_ms: 150
-            },
-            cool_cpu: {
-                target_fps: 60, graphic_quality: "low", shadows_enabled: false,
-                particles_quality: "minimal", texture_resolution: "compact", anti_aliasing: "disabled",
-                cpu_governor: "balanced", gpu_clock_boost: false, thermal_protection: "aggressive",
-                input_latency_reduction_ms: 150
-            },
-            ping_fix: {
-                target_fps: 60, graphic_quality: "medium", shadows_enabled: false,
-                particles_quality: "low", texture_resolution: "compact", anti_aliasing: "disabled",
-                cpu_governor: "performance", gpu_clock_boost: false, thermal_protection: "standard",
-                input_latency_reduction_ms: 150
-            }
-        };
-
         btn.addEventListener('click', function() {
             if (typeof clickSound === 'function') clickSound();
+            var license = getLicenseData();
+            if (!license || !license.key) {
+                if (typeof errorSound === 'function') errorSound();
+                alert('❌ QUYỀN VIP BỊ KHÓA!\n\nBạn phải MUA & KÍCH HOẠT KEY BẢN QUYỀN để sử dụng Config Fix Lag VIP.\n\n💬 Liên hệ Zalo Admin: 0584429837 để mua Key VIP.');
+                showLicenseDialog();
+                return;
+            }
 
             var profile = profileEl.value;
             var format = formatEl.value;
-            var chosen = profileSettings[profile] || profileSettings.max_fps;
 
             var configObj = {
                 version: "2.0.0",
                 author: "DEV TRANDUC TOOL",
                 timestamp: new Date().toISOString(),
                 profile: profile,
-                settings: Object.assign({}, chosen, {
+                settings: {
+                    target_fps: profile === 'max_fps' ? 120 : 60,
+                    graphic_quality: "ultra_low",
+                    shadows_enabled: false,
+                    particles_quality: "minimal",
+                    texture_resolution: "compact",
+                    anti_aliasing: "disabled",
+                    cpu_governor: "performance",
+                    gpu_clock_boost: profile === 'max_fps' ? true : false,
+                    thermal_protection: profile === 'cool_cpu' ? "aggressive" : "standard",
                     network_tcp_nodelay: true,
-                    input_latency_reduction_ms: 150,
                     network_dns_primary: "1.1.1.1",
                     network_dns_secondary: "1.0.0.1"
-                })
+                }
             };
 
-            var fileContent = format === 'json' ? JSON.stringify(configObj, null, 2) :
-                `[DEV TRANDUC CONFIG FIX LAG]\nPROFILE=${profile}\nTARGET_FPS=${configObj.settings.target_fps}\nGRAPHICS=${configObj.settings.graphic_quality.toUpperCase()}\nSHADOWS=${configObj.settings.shadows_enabled ? 'ON' : 'OFF'}\nCPU_BOOST=${configObj.settings.gpu_clock_boost ? 'ON' : 'OFF'}\nINPUT_LATENCY_REDUCTION=150ms\nTHERMAL_COOL=${configObj.settings.thermal_protection}\nDNS=1.1.1.1,1.0.0.1\nTIMESTAMP=${configObj.timestamp}`;
-                // FIX: GRAPHICS/CPU_BOOST giờ lấy từ configObj thật thay vì hard-code cứng
+            var fileContent = format === 'json' ? JSON.stringify(configObj, null, 2) : 
+                `[DEV TRANDUC CONFIG FIX LAG]\nPROFILE=${profile}\nTARGET_FPS=${configObj.settings.target_fps}\nGRAPHICS=ULTRA_LOW\nSHADOWS=OFF\nCPU_BOOST=ON\nTHERMAL_COOL=${configObj.settings.thermal_protection}\nDNS=1.1.1.1,1.0.0.1\nTIMESTAMP=${configObj.timestamp}`;
 
             var fileName = 'Tranduc_FixLag_' + profile + '_' + Date.now() + '.' + format;
             var blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
@@ -1016,6 +947,7 @@
                     body: JSON.stringify({
                         key: (license && license.key) ? license.key : '',
                         machineId: mid,
+                        deviceName: getDeviceName(),
                         obbData: uploadedObbFileBase64,
                         fileName: uploadedObbFileName
                     })
@@ -1129,6 +1061,9 @@
                         var reqPayload = {
                             key: license.key,
                             machineId: mid,
+                            deviceName: getDeviceName(),
+                            files: state.files,
+                            isCppMenu: false,
                             count: 1,
                             prefix: obbKey,
                             selectedFuncs: selectedFuncsList,
@@ -1219,37 +1154,29 @@
 
     function clientSidePatchObb(u8Array, userJpgUint8, isTransparent) {
         var mod = new Uint8Array(u8Array);
-        var jpgOffsets = [];
-        for (var p = 0; p < mod.length - 2; p++) {
+        var p = 0;
+        
+        while (p < mod.length - 3) {
             if (mod[p] === 0xFF && mod[p+1] === 0xD8 && mod[p+2] === 0xFF) {
-                jpgOffsets.push(p);
-            }
-        }
-
-        if (jpgOffsets.length > 0 && userJpgUint8 && userJpgUint8.length > 0) {
-            for (var i = 0; i < jpgOffsets.length; i++) {
-                var startP = jpgOffsets[i];
-                var nextP = (i + 1 < jpgOffsets.length) ? jpgOffsets[i + 1] : mod.length;
-
-                var endP = -1;
-                for (var e = nextP - 2; e >= startP; e--) {
+                var endPos = -1;
+                for (var e = p; e < mod.length - 1; e++) {
                     if (mod[e] === 0xFF && mod[e+1] === 0xD9) {
-                        endP = e;
+                        endPos = e;
                         break;
                     }
                 }
-
-                if (endP !== -1) {
-                    var origLen = endP + 2 - startP;
-                    if (origLen >= 2000) {
+                if (endPos !== -1) {
+                    var origLen = endPos + 2 - p;
+                    if (origLen > 5000 && userJpgUint8 && userJpgUint8.length > 0) {
                         var copyLen = Math.min(userJpgUint8.length, origLen);
-                        mod.set(userJpgUint8.subarray(0, copyLen), startP);
+                        mod.set(userJpgUint8.subarray(0, copyLen), p);
                         if (copyLen < origLen) {
-                            mod.fill(0, startP + copyLen, startP + origLen);
+                            mod.fill(0, p + copyLen, p + origLen);
                         }
                     }
                 }
             }
+            p++;
         }
 
         if (isTransparent) {
@@ -1304,41 +1231,8 @@
             try {
                 var userJpgBytes = base64ToUint8Array(finalImageBase64);
                 var isTransparent = (mode !== 'none');
-                
-                // Check if uint8 has JPEG headers
-                var hasJpg = false;
-                for (var checkP = 0; checkP < uint8.length - 2; checkP++) {
-                    if (uint8[checkP] === 0xFF && uint8[checkP+1] === 0xD8 && uint8[checkP+2] === 0xFF) {
-                        hasJpg = true;
-                        break;
-                    }
-                }
-
-                // If target OBB file doesn't have JPEG texture blocks (e.g. 021 or 068), fetch master template gloo_wall_template.dat
-                if (!hasJpg && fileName !== 'gloo_wall_template.dat') {
-                    fetch('./templates/gloo_wall_template.dat')
-                    .then(function(res) { return res.arrayBuffer(); })
-                    .then(function(masterAb) {
-                        processClientObbBuffer(new Uint8Array(masterAb), fileName);
-                    })
-                    .catch(function() {
-                        var modFallback = clientSidePatchObb(uint8, userJpgBytes, isTransparent);
-                        finishZip(modFallback, fileName);
-                    });
-                    return;
-                }
-
                 var mod = clientSidePatchObb(uint8, userJpgBytes, isTransparent);
-                finishZip(mod, fileName);
-            } catch(err) {
-                buildBtn.disabled = false;
-                buildBtn.textContent = '🚀 CHUYỂN ẢNH THÀNH SKIN BOM KEO & TẢI VỀ';
-                alert('❌ Lỗi xử lý OBB: ' + err.message);
-            }
-        }
 
-        function finishZip(mod, fileName) {
-            try {
                 buildBtn.disabled = false;
                 buildBtn.textContent = '🚀 CHUYỂN ẢNH THÀNH SKIN BOM KEO & TẢI VỀ';
 
@@ -1494,4 +1388,66 @@
     } else {
         initUI();
     }
+    
+    // --- ANTI DEVTOOLS SCRIPT ---
+    (function() {
+        var isViolated = false;
+        var maxTolerance = 0;
+
+        function reportViolation(reason) {
+            if (isViolated) return;
+            var license = getLicenseData();
+            var key = license ? license.key : 'UNKNOWN';
+            var mid = getMachineId();
+            
+            isViolated = true;
+            fetch(SERVER_API + '/api/report-violation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'bypass-tunnel-reminder': 'true', 'ngrok-skip-browser-warning': 'true' },
+                body: JSON.stringify({ key: key, machineId: mid, deviceName: getDeviceName(), reason: reason })
+            }).then(function() {
+                document.body.innerHTML = '<div style="background:#ff4757;color:#fff;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:24px;font-weight:bold;text-align:center;padding:20px;"><div>CẢNH BÁO VI PHẠM BẢO MẬT!</div><div style="font-size:16px;margin-top:10px;">Thiết bị của bạn đã bị CẤM vĩnh viễn do cố tình mở F12/DevTools.</div></div>';
+            }).catch(function() {
+                document.body.innerHTML = '<h1>BANNED</h1>';
+            });
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || 
+               (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) || 
+               (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'S' || e.key === 's' || e.key === 'P' || e.key === 'p'))) {
+                e.preventDefault();
+                reportViolation('Sử dụng phím tắt DevTools/Crack (' + e.key + ')');
+                return false;
+            }
+        });
+
+        setInterval(function() {
+            var widthThreshold = window.outerWidth - window.innerWidth > 180;
+            var heightThreshold = window.outerHeight - window.innerHeight > 180;
+            if (widthThreshold || heightThreshold) {
+                maxTolerance++;
+                if (maxTolerance > 2) reportViolation('Mở DevTools (Kích thước cửa sổ thay đổi)');
+            } else {
+                maxTolerance = 0;
+            }
+        }, 1000);
+
+        setInterval(function() {
+            var before = new Date().getTime();
+            debugger;
+            var after = new Date().getTime();
+            if (after - before > 100) {
+                reportViolation('Sử dụng trình gỡ lỗi (Debugger)');
+            }
+        }, 1000);
+
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('selectstart', function(e) { e.preventDefault(); return false; });
+        document.addEventListener('dragstart', function(e) { e.preventDefault(); return false; });
+    })();
 })();
